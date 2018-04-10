@@ -3,7 +3,11 @@ import controller from './controller';
 import PostModel from './model';
 import { transferCtrl, deleteCtrl } from '../../../middleware/transfer';
 import asyncResponse from '../../../middleware/asyncResponse';
-import { translateCategories, keywordCategories } from '../../../middleware/categories';
+import {
+  translateCategories,
+  keywordCategories,
+  synonymCategories
+} from '../../../middleware/categories';
 
 const router = new Router();
 
@@ -16,6 +20,7 @@ router
     asyncResponse,
     transferCtrl( PostModel ),
     keywordCategories,
+    synonymCategories,
     translateCategories( PostModel ),
     controller.indexDocument
   );
@@ -26,6 +31,8 @@ router
   .put(
     asyncResponse,
     transferCtrl( PostModel ),
+    keywordCategories,
+    synonymCategories,
     translateCategories( PostModel ),
     controller.updateDocumentById
   )
