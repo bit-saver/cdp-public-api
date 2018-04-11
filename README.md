@@ -1,31 +1,34 @@
-# cdp-public-api 
+# cdp-public-api
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [Getting Started](#getting-started)
-  - [Configuration](#configuration)
-  - [Using Docker](#using-docker)
-  - [Scripts](#scripts)
-- [Routes](#routes)
-  - [`/v1/language`](#v1language)
-    - [Request](#request)
-  - [`/v1/taxonomy`](#v1taxonomy)
-    - [Request](#request-1)
-  - [`/v1/owner/bulk`](#v1ownerbulk)
-    - [Request](#request-2)
-  - [`/v1/search`](#v1search)
-    - [Request](#request-3)
-    - [Response](#response)
-    - [API Properties](#api-properties)
-  - [`/v1/get`](#v1get)
-    - [Request](#request-4)
-    - [Response](#response-1)
-    - [API Properties](#api-properties-1)
-  - [`/v1/getsource`](#v1getsource)
-    - [Request](#request-5)
-    - [Response](#response-2)
-    - [API Properties](#api-properties-2)
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+* [Getting Started](#getting-started)
+  * [Configuration](#configuration)
+  * [Using Docker](#using-docker)
+  * [Scripts](#scripts)
+* [Routes](#routes)
+  * [`/v1/language`](#v1language)
+    * [Request](#request)
+  * [`/v1/taxonomy`](#v1taxonomy)
+    * [Request](#request-1)
+  * [`/v1/owner/bulk`](#v1ownerbulk)
+    * [Request](#request-2)
+  * [`/v1/search`](#v1search)
+    * [Request](#request-3)
+    * [Response](#response)
+    * [API Properties](#api-properties)
+  * [`/v1/get`](#v1get)
+    * [Request](#request-4)
+    * [Response](#response-1)
+    * [API Properties](#api-properties-1)
+  * [`/v1/getsource`](#v1getsource)
+    * [Request](#request-5)
+    * [Response](#response-2)
+    * [API Properties](#api-properties-2)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -65,8 +68,8 @@ The Dockerfiles bring up a multi container network housing a Node server for the
 * `npm run clear:build`: Removes the build directory.
 * `npm run build`: Generates build folder/files.
 * `npm run dev`: Re-starts the server and re-complies the `build` folder after every change.
-* `npm run dev:build`: Re-compiles the `build` folder after every change.
-* `npm run dev:server`: Re-starts the server after every change.
+* `npm run test`: Runs npm run test:unit.
+* `npm run test:unit`: Executes test cases.
 
 ## Routes
 
@@ -95,7 +98,7 @@ Bulk import of taxonomy terms.
 #### Request
 
 Must include a CSV file in the POST keyed by `csv`.
-CSV must contain a header with at least `Parent` and `Child` columns. May also contain `Synonyms` which is a ` | ` delineated list of synonym mapping keywords. A `Skip` column may also be used to forcefully ignore the entire row.
+CSV must contain a header with at least `Parent` and `Child` columns. May also contain `Synonyms` which is a `|` delineated list of synonym mapping keywords. A `Skip` column may also be used to forcefully ignore the entire row.
 Terms will be created in sequential order where children are associated with the last seen parent row above it.
 
 ```http
