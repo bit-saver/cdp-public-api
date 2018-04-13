@@ -5,7 +5,7 @@ import { transferCtrl, deleteCtrl } from '../../../middleware/transfer';
 import asyncResponse from '../../../middleware/asyncResponse';
 import {
   translateCategories,
-  keywordCategories,
+  tagCategories,
   synonymCategories
 } from '../../../middleware/categories';
 
@@ -19,7 +19,7 @@ router
   .post(
     asyncResponse,
     transferCtrl( PostModel ),
-    keywordCategories,
+    tagCategories,
     synonymCategories,
     translateCategories( PostModel ),
     controller.indexDocument
@@ -31,7 +31,7 @@ router
   .put(
     asyncResponse,
     transferCtrl( PostModel ),
-    keywordCategories,
+    tagCategories,
     synonymCategories,
     translateCategories( PostModel ),
     controller.updateDocumentById
