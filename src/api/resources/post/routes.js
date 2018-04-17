@@ -4,6 +4,7 @@ import PostModel from './model';
 import { transferCtrl, deleteCtrl } from '../../../middleware/transfer';
 import asyncResponse from '../../../middleware/asyncResponse';
 import { translateCategories, keywordCategories } from '../../../middleware/categories';
+import { validate } from '../../../middleware/validateSchema';
 
 const router = new Router();
 
@@ -13,6 +14,7 @@ router.param( 'uuid', controller.setRequestDoc );
 router
   .route( '/' )
   .post(
+    validate( PostModel ),
     asyncResponse,
     transferCtrl( PostModel ),
     keywordCategories,
@@ -24,6 +26,7 @@ router
 router
   .route( '/:uuid' )
   .put(
+    validate( PostModel ),
     asyncResponse,
     transferCtrl( PostModel ),
     translateCategories( PostModel ),

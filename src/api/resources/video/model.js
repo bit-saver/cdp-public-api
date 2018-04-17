@@ -1,6 +1,7 @@
 import AbstractModel from '../../modules/abstractModel';
 import Ajv from 'ajv';
 import languageSchema from '../../modules/schema/language';
+import thumbnailSchema from '../../modules/schema/thumbnail';
 
 /**
  * Video Content Model helps in managing assets within JSON.
@@ -35,47 +36,7 @@ class Video extends AbstractModel {
         owner: { type: 'string' },
         author: { type: 'string' },
         duration: { type: 'number' },
-        thumbnail: {
-          type: 'object',
-          properties: {
-            small: {
-              type: ['object', 'null'],
-              properties: {
-                url: { type: 'string' },
-                width: { type: 'string' },
-                height: { type: 'string' },
-                orientation: { type: 'string' }
-              }
-            },
-            medium: {
-              type: ['object', 'null'],
-              properties: {
-                url: { type: 'string' },
-                width: { type: 'string' },
-                height: { type: 'string' },
-                orientation: { type: 'string' }
-              }
-            },
-            large: {
-              type: ['object', 'null'],
-              properties: {
-                url: { type: 'string' },
-                width: { type: 'string' },
-                height: { type: 'string' },
-                orientation: { type: 'string' }
-              }
-            },
-            full: {
-              type: ['object', 'null'],
-              properties: {
-                url: { type: 'string' },
-                width: { type: 'string' },
-                height: { type: 'string' },
-                orientation: { type: 'string' }
-              }
-            }
-          }
-        },
+        thumbnail: thumbnailSchema,
         categories: {
           type: 'array',
           default: [],
