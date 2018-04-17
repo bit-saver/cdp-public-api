@@ -104,7 +104,7 @@ class Video extends AbstractModel {
                 items: {
                   type: 'object',
                   properties: {
-                    burnedInCaptions: { type: 'string' },
+                    burnedInCaptions: { type: 'boolean' },
                     downloadUrl: { type: 'string' },
                     streamUrl: {
                       type: 'array',
