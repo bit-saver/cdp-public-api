@@ -1,19 +1,21 @@
 import { Router } from 'express';
-import client from '../../services/elasticsearch';
-import controllerFactory from './controller';
+import * as controller from './controller';
 
 const router = new Router();
-const controller = controllerFactory( client );
 
 // Route: /v1/admin/elastic/indices
 router
   .route( '/elastic/indices' )
-  .post( controller.indicesCreate )
-  .delete( controller.indicesDelete );
+  .post( controller.create )
+  .delete( controller.remove );
+
+router.route( '/elastic/indices/reindex' ).post( controller.reindex );
 
 router
   .route( '/elastic/indices/mapping' )
-  .put( controller.indicesPutMapping )
-  .post( controller.indicesGetMapping );
+  .put( controller.putMapping )
+  .post( controller.getMapping );
+
+// router.route( '/elastic/indices/reindex' ).post( controller.indicesReindex );
 
 export default router;
