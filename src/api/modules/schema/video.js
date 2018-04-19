@@ -1,4 +1,5 @@
 import languageSchema from './language';
+import thumbnailSchema from './thumbnail';
 
 const videoSchema = {
   title: 'Video',
@@ -12,47 +13,7 @@ const videoSchema = {
     owner: { type: 'string' },
     author: { type: 'string' },
     duration: { type: 'number' },
-    thumbnail: {
-      type: 'object',
-      properties: {
-        small: {
-          type: ['object', 'null'],
-          properties: {
-            url: { type: 'string' },
-            width: { type: 'string' },
-            height: { type: 'string' },
-            orientation: { type: 'string' }
-          }
-        },
-        medium: {
-          type: ['object', 'null'],
-          properties: {
-            url: { type: 'string' },
-            width: { type: 'string' },
-            height: { type: 'string' },
-            orientation: { type: 'string' }
-          }
-        },
-        large: {
-          type: ['object', 'null'],
-          properties: {
-            url: { type: 'string' },
-            width: { type: 'string' },
-            height: { type: 'string' },
-            orientation: { type: 'string' }
-          }
-        },
-        full: {
-          type: ['object', 'null'],
-          properties: {
-            url: { type: 'string' },
-            width: { type: 'string' },
-            height: { type: 'string' },
-            orientation: { type: 'string' }
-          }
-        }
-      }
-    },
+    thumbnail: thumbnailSchema,
     categories: {
       type: 'array',
       default: [],

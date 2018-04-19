@@ -1,8 +1,8 @@
 import languageSchema from './language';
 import thumbnailSchema from './thumbnail';
 
-const postSchema = {
-  title: 'Post',
+const courseSchema = {
+  title: 'Course',
   type: 'object',
   properties: {
     post_id: { type: 'integer' },
@@ -11,6 +11,10 @@ const postSchema = {
     published: { type: 'string' },
     modified: { type: 'string' },
     owner: { type: 'string' },
+    title: { type: 'string' },
+    slug: { type: 'string' },
+    excerpt: { type: 'string' },
+    branded: { type: 'boolean' },
     author: {
       type: 'object',
       properties: {
@@ -18,21 +22,16 @@ const postSchema = {
         name: { type: 'string' }
       }
     },
-    link: { type: 'string' },
-    title: { type: 'string' },
-    slug: { type: 'string' },
-    content: { type: 'string' },
-    excerpt: { type: 'string' },
     thumbnail: thumbnailSchema,
     language: languageSchema,
-    languages: {
+    lessons: {
       type: 'array',
       default: [],
       items: {
         type: 'object',
         properties: {
           post_id: { type: 'integer' },
-          language: languageSchema
+          title: { type: 'string' }
         }
       }
     },
@@ -49,4 +48,4 @@ const postSchema = {
   }
 };
 
-export default postSchema;
+export default courseSchema;
