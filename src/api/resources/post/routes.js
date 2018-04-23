@@ -29,6 +29,7 @@ router
     validate( PostModel ),
     asyncResponse,
     transferCtrl( PostModel ),
+    keywordCategories,
     translateCategories( PostModel ),
     controller.updateDocumentById
   )
