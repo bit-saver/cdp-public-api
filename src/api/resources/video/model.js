@@ -73,6 +73,24 @@ class Video extends AbstractModel {
         } );
       }
     } );
+    if ( json.thumbnail ) {
+      [
+        'small', 'medium', 'large', 'full'
+      ].forEach( ( size ) => {
+        if ( json.thumbnail[size] ) {
+          assets.push( {
+            downloadUrl: json.thumbnail[size].url,
+            md5: json.thumbnail[size].md5 || null,
+            width: json.thumbnail[size].width,
+            height: json.thumbnail[size].height,
+            orientation: json.thumbnail[size].orientation,
+            unitIndex: size,
+            srcIndex: -1,
+            assetType: 'thumbnail'
+          } );
+        }
+      } );
+    }
     return assets;
   }
 
@@ -85,29 +103,44 @@ class Video extends AbstractModel {
    * @param asset { downloadUrl, streamUrl, md5, unitIndex, srcIndex, assetType }
    */
   putAsset( asset ) {
-    if ( asset.assetType === 'source' ) {
-      if ( asset.unitIndex !== null && asset.srcIndex !== null ) {
-        const source = this.body.unit[asset.unitIndex].source[asset.srcIndex];
-        source.downloadUrl = asset.downloadUrl;
-        source.stream = asset.stream;
-        source.md5 = asset.md5;
-        source.size = asset.size;
-        source.duration = asset.duration;
-      } else {
-        console.log( 'attempting to update asset via hash' );
-        this.body.unit.forEach( ( unit ) => {
-          unit.source.forEach( ( src ) => {
-            const temp = src;
-            if ( src.md5 === asset.md5 ) {
-              console.log( 'found match, updating stream', asset.stream );
-              temp.stream = asset.stream;
-            }
+    switch ( asset.assetType ) {
+      case 'source':
+        if ( asset.unitIndex !== null && asset.srcIndex !== null ) {
+          const source = this.body.unit[asset.unitIndex].source[asset.srcIndex];
+          source.downloadUrl = asset.downloadUrl;
+          source.stream = asset.stream;
+          source.md5 = asset.md5;
+          source.size = asset.size;
+          source.duration = asset.duration;
+        } else {
+          console.log( 'attempting to update asset via hash' );
+          this.body.unit.forEach( ( unit ) => {
+            unit.source.forEach( ( src ) => {
+              const temp = src;
+              if ( src.md5 === asset.md5 ) {
+                console.log( 'found match, updating stream', asset.stream );
+                temp.stream = asset.stream;
+              }
+            } );
           } );
-        } );
+        }
+        break;
+      case 'thumbnail': {
+        const source = this.body.thumbnail[asset.unitIndex];
+        source.url = asset.downloadUrl;
+        source.width = asset.width;
+        source.height = asset.height;
+        source.orientation = asset.orientation;
+        source.md5 = asset.md5;
+        break;
       }
-    } else {
-      this.body.unit[asset.unitIndex][asset.assetType].srcUrl = asset.downloadUrl;
-      this.body.unit[asset.unitIndex][asset.assetType].md5 = asset.md5;
+      case 'transcript':
+      case 'srt':
+        this.body.unit[asset.unitIndex][asset.assetType].srcUrl = asset.downloadUrl;
+        this.body.unit[asset.unitIndex][asset.assetType].md5 = asset.md5;
+        break;
+      default:
+        break;
     }
   }
 
