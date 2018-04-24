@@ -1,6 +1,7 @@
 import languageSchema from './language';
 import thumbnailSchema from './thumbnail';
 
+
 const videoSchema = {
   title: 'Video',
   type: 'object',
@@ -67,6 +68,9 @@ const videoSchema = {
                     thumbnail: { type: 'string' }
                   }
                 },
+                duration: {
+                  type: 'string'
+                },
                 filetype: { type: 'string' },
                 md5: { type: 'string' },
                 size: {
@@ -77,9 +81,6 @@ const videoSchema = {
                     filesize: { type: 'number' },
                     bitrate: { type: 'number' }
                   }
-                },
-                duration: {
-                  type: 'string'
                 }
               }
             }
@@ -106,4 +107,6 @@ const videoSchema = {
   required: ['post_id', 'site']
 };
 
+
 export default videoSchema;
+
