@@ -1,7 +1,8 @@
 import languageSchema from './language';
 import thumbnailSchema from './thumbnail';
 
-export default {
+
+const videoSchema = {
   title: 'Video',
   type: 'object',
   properties: {
@@ -84,19 +85,19 @@ export default {
               }
             }
           },
-          srt: {
-            type: 'object',
-            properties: {
-              srcUrl: { type: 'string' },
-              md5: { type: 'string' }
-            }
-          },
           transcript: {
             type: 'object',
             properties: {
               srcUrl: { type: 'string' },
               md5: { type: 'string' },
               text: { type: 'string' }
+            }
+          },
+          srt: {
+            type: 'object',
+            properties: {
+              srcUrl: { type: 'string' },
+              md5: { type: 'string' }
             }
           }
         }
@@ -105,3 +106,7 @@ export default {
   },
   required: ['post_id', 'site']
 };
+
+
+export default videoSchema;
+

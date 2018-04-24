@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import controller from './controller';
 import PostModel from './model';
+import { validate } from '../../../middleware/validateSchema';
 import { transferCtrl, deleteCtrl } from '../../../middleware/transfer';
 import asyncResponse from '../../../middleware/asyncResponse';
 import { translateCategories, keywordCategories } from '../../../middleware/categories';
-import { validate } from '../../../middleware/validateSchema';
 
 const router = new Router();
 
