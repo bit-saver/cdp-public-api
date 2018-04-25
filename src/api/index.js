@@ -10,7 +10,7 @@ import courseRoutes from './resources/course/routes';
 import languageRoutes from './resources/language/routes';
 import taxonomyRoutes from './resources/taxonomy/routes';
 import ownerRoutes from './resources/owner/routes';
-import zipRoutes from './resources/zip/routes';
+import zipRoutes from './tasks/zip/routes';
 import testRoutes from './test';
 
 const router = new Router();
