@@ -10,6 +10,7 @@ import courseRoutes from './resources/course/routes';
 import languageRoutes from './resources/language/routes';
 import taxonomyRoutes from './resources/taxonomy/routes';
 import ownerRoutes from './resources/owner/routes';
+import zipRoutes from './resources/zip/routes';
 import testRoutes from './test';
 
 const router = new Router();
@@ -27,6 +28,7 @@ router.use( '/course', courseRoutes );
 router.use( '/language', languageRoutes );
 router.use( '/taxonomy', taxonomyRoutes );
 router.use( '/owner', ownerRoutes );
+router.use( '/zip', zipRoutes );
 
 // test
 router.use( '/test', testRoutes );
