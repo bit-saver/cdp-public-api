@@ -21,6 +21,30 @@ const translateTermById = model => async ( req, res, next ) =>
     .catch( err => next( err ) );
 
 /**
+ * Create the language object containing the locale:translation pairs of the taxonomy term.
+ *
+ * @param termName
+ * @param existingTerm
+ * @param languageStr
+ * @returns object
+ */
+const createLanguage = ( termName, existingTerm = {}, languageStr = '' ) => languageStr.split( ' | ' ).reduce(
+  ( accum, val ) => {
+    const args = val.split( ':' ).map( v => v.trim().toLowerCase() );
+    if ( !args || args.length < 2 ) return accum;
+    return {
+      ...accum,
+      [args[0]]: args[1]
+    };
+  },
+  {
+    en: termName.toLowerCase(),
+    'en-us': termName.toLowerCase(),
+    ...existingTerm
+  }
+);
+
+/**
  * Allows the bulk import of taxonomy terms.
  * A CSV is required in the post keyed with name 'csv'.
  * A header is assumed.
@@ -46,11 +70,13 @@ const bulkImport = model => async ( req, res, next ) => {
    *
    * @param name
    * @param syns
+   * @param language
    * @param isParent
    * @param existingTerm
    * @returns {Promise<*>}
    */
-  const createUpdateTerm = async ( name, syns, isParent, existingTerm ) => {
+  const createUpdateTerm = async ( name, syns, language, isParent, existingTerm ) => {
+    console.log( 'createUpdateTerm', name, syns, language, isParent, existingTerm );
     let term = existingTerm;
     // If no existingTerm provided, search ES
     if ( !term ) term = await controllers.findDocByTerm( model, name );
@@ -60,18 +86,17 @@ const bulkImport = model => async ( req, res, next ) => {
         primary: isParent,
         parents: isParent ? [] : [parent._id],
         synonymMapping: syns,
-        language: {
-          en: name.toLowerCase()
-        }
+        language
       };
       term = await model.indexDocument( body ).then( parser.parseCreateResult( body ) );
       return term;
     }
-    // We DO have an existing term so let's update the parents and synonyms
+    // We DO have an existing term so let's update the parents, synonyms, and language
     if ( !isParent && !term.parents.includes( parent._id ) ) term.parents.push( parent._id );
     syns.forEach( ( syn ) => {
       if ( !term.synonymMapping.includes( syn ) ) term.synonymMapping.push( syn );
     } );
+    term.language = { ...term.language, ...language };
     term = await controllers.updateDocument( model, term, term._id );
     return term;
   };
@@ -116,7 +141,12 @@ const bulkImport = model => async ( req, res, next ) => {
             if ( terms[termName] ) {
               existingTerm = terms[termName];
             }
-            const term = await createUpdateTerm( termName, syns, true, existingTerm );
+            const language = createLanguage(
+              termName,
+              existingTerm,
+              head.translations ? cols[head.translations] : null
+            );
+            const term = await createUpdateTerm( termName, syns, language, true, existingTerm );
             parent = term;
             return { ...terms, [termName]: term };
           } else if ( cols[head.child] ) {
@@ -125,7 +155,12 @@ const bulkImport = model => async ( req, res, next ) => {
             if ( terms[termName] ) {
               existingTerm = terms[termName];
             }
-            const term = await createUpdateTerm( termName, syns, false, existingTerm );
+            const language = createLanguage(
+              termName,
+              existingTerm,
+              head.translations ? cols[head.translations] : null
+            );
+            const term = await createUpdateTerm( termName, syns, language, false, existingTerm );
             const ret = { ...terms };
             ret[termName] = term;
             return { ...terms, [termName]: term };
@@ -150,7 +185,8 @@ const bulkImport = model => async ( req, res, next ) => {
       parent: null,
       child: null,
       synonyms: null,
-      skip: null
+      skip: null,
+      translations: null
     };
     first.forEach( ( col, idx ) => {
       const title = col.toLowerCase();
@@ -159,6 +195,7 @@ const bulkImport = model => async ( req, res, next ) => {
       else if ( title.indexOf( 'child' ) === 0 ) head.child = idx;
       else if ( title.indexOf( 'synonyms' ) === 0 ) head.synonyms = idx;
       else if ( title.indexOf( 'skip' ) === 0 ) head.skip = idx;
+      else if ( title.indexOf( 'translations' ) === 0 ) head.translations = idx;
     } );
     if ( head.parent === null || head.child === null ) {
       return next( new Error( 'CSV is missing header or missing the required columns of Parent and Child.' ) );
