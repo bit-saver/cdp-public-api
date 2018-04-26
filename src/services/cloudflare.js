@@ -114,8 +114,81 @@ const upload = filePath =>
     }
   } );
 
+const list = () =>
+  new Promise( ( resolve, reject ) => {
+    const endpoint = `https://api.cloudflare.com/client/v4/zones/${
+      process.env.CF_STREAM_ZONE
+    }/media`;
+    const headers = {
+      'X-Auth-Key': process.env.CF_STREAM_KEY || '',
+      'X-Auth-Email': process.env.CF_STREAM_EMAIL || '',
+      'Content-Type': 'application/json'
+    };
+    Request.get(
+      {
+        url: endpoint,
+        headers,
+        json: true
+      },
+      ( err, res, body ) => {
+        console.log( JSON.stringify( body, null, 2 ) );
+        if ( err ) return reject( err );
+        resolve( body );
+      }
+    );
+  } );
+
+const remove = uid =>
+  new Promise( ( resolve, reject ) => {
+    const endpoint = `https://api.cloudflare.com/client/v4/zones/${
+      process.env.CF_STREAM_ZONE
+    }/media/${uid}`;
+    const headers = {
+      'X-Auth-Key': process.env.CF_STREAM_KEY || '',
+      'X-Auth-Email': process.env.CF_STREAM_EMAIL || '',
+      'Content-Type': 'application/json'
+    };
+    const timer = setTimeout( () => {
+      resolve( 'Timed out but probably successful.' );
+    }, 10 * 1000 );
+    Request(
+      {
+        url: endpoint,
+        headers,
+        json: true,
+        method: 'DELETE'
+      },
+      ( err, res, body ) => {
+        clearTimeout( timer );
+        console.log( JSON.stringify( { err, res, body }, null, 2 ) );
+        if ( err ) return reject( err );
+        if ( body && !body.success ) return reject( body );
+        return resolve( body );
+      }
+    );
+  } );
+
+const removeAll = () =>
+  new Promise( async ( resolve, reject ) => {
+    const videos = await list().catch( ( err ) => {
+      console.error( err );
+      reject( err );
+      return null;
+    } );
+    if ( !videos.success ) return reject( videos );
+    if ( videos && videos.results && videos.results.length > 0 ) {
+      videos.results.forEach( ( video ) => {
+        remove( video.uid );
+      } );
+    }
+    resolve( `${videos.results.length} videos deleted.` );
+  } );
+
 const cloudflare = {
-  upload
+  upload,
+  list,
+  remove,
+  removeAll
 };
 
 export default cloudflare;

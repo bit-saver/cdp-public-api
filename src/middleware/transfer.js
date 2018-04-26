@@ -106,7 +106,10 @@ const updateAsset = ( model, asset, result, md5 ) => {
 
 const deleteAssets = ( assets ) => {
   assets.forEach( ( asset ) => {
-    aws.remove( asset );
+    if ( asset.url ) aws.remove( asset );
+    if ( asset.stream && asset.stream.uid ) {
+      cloudflare.remove( asset.stream.uid );
+    }
   } );
 };
 
@@ -304,8 +307,8 @@ export const deleteCtrl = Model => async ( req, res, next ) => {
   }
 
   const urlsToRemove = esAssets
-    .filter( asset => asset.downloadUrl )
-    .map( asset => ( { url: asset.downloadUrl } ) );
+    .filter( asset => asset.downloadUrl || asset.stream )
+    .map( asset => ( { url: asset.downloadUrl, stream: asset.stream } ) );
 
   deleteAssets( urlsToRemove );
   next();
