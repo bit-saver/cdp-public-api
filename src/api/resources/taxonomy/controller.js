@@ -25,24 +25,22 @@ const translateTermById = model => async ( req, res, next ) =>
  *
  * @param termName
  * @param existingTerm
- * @param languageStr
+ * @param languageCols
  * @returns object
  */
-const createLanguage = ( termName, existingTerm = {}, languageStr = '' ) => languageStr.split( ' | ' ).reduce(
-  ( accum, val ) => {
-    const args = val.split( ':' ).map( v => v.trim().toLowerCase() );
-    if ( !args || args.length < 2 ) return accum;
-    return {
-      ...accum,
-      [args[0]]: args[1]
-    };
-  },
-  {
+const createLanguage = ( termName, existingTerm = { language: {} }, languageCols = null ) => {
+  const existingLanguage = { language: {} };
+  if ( existingTerm ) existingLanguage.language = existingTerm.language;
+  const language = {
     en: termName.toLowerCase(),
     'en-us': termName.toLowerCase(),
-    ...existingTerm
-  }
-);
+    ...existingLanguage.language
+  };
+  languageCols.indices.forEach( ( localeIndex ) => {
+    language[localeIndex.locale] = languageCols.cols[localeIndex.index] || null;
+  } );
+  return language;
+};
 
 /**
  * Allows the bulk import of taxonomy terms.
@@ -125,6 +123,7 @@ const bulkImport = model => async ( req, res, next ) => {
 
           const syns = [];
           if ( head.synonyms && cols[head.synonyms] ) {
+            // Add synonyms to the synonyms array if they don't already exist
             cols[head.synonyms]
               .toLowerCase()
               .replace( /[\r\n]+/g, '' )
@@ -136,29 +135,29 @@ const bulkImport = model => async ( req, res, next ) => {
           let existingTerm = null;
           let termName = '';
           if ( cols[head.parent] ) {
-            termName = cols[head.parent].toLowerCase();
             // This is a primary category
+            termName = cols[head.parent].toLowerCase();
             if ( terms[termName] ) {
               existingTerm = terms[termName];
             }
             const language = createLanguage(
               termName,
               existingTerm,
-              head.translations ? cols[head.translations] : null
+              head.translations ? { indices: head.translations, cols } : null
             );
             const term = await createUpdateTerm( termName, syns, language, true, existingTerm );
             parent = term;
             return { ...terms, [termName]: term };
           } else if ( cols[head.child] ) {
-            termName = cols[head.child].toLowerCase();
             // This is a child category
+            termName = cols[head.child].toLowerCase();
             if ( terms[termName] ) {
               existingTerm = terms[termName];
             }
             const language = createLanguage(
               termName,
               existingTerm,
-              head.translations ? cols[head.translations] : null
+              head.translations ? { indices: head.translations, cols } : null
             );
             const term = await createUpdateTerm( termName, syns, language, false, existingTerm );
             const ret = { ...terms };
@@ -195,7 +194,13 @@ const bulkImport = model => async ( req, res, next ) => {
       else if ( title.indexOf( 'child' ) === 0 ) head.child = idx;
       else if ( title.indexOf( 'synonyms' ) === 0 ) head.synonyms = idx;
       else if ( title.indexOf( 'skip' ) === 0 ) head.skip = idx;
-      else if ( title.indexOf( 'translations' ) === 0 ) head.translations = idx;
+      else if ( title.indexOf( 'lang:' ) === 0 ) {
+        const args = col.split( ' | ' ).map( val => val.trim() );
+        if ( args.length > 1 ) {
+          if ( !head.translations ) head.translations = [];
+          head.translations.push( { locale: args[1], index: idx } );
+        }
+      }
     } );
     if ( head.parent === null || head.child === null ) {
       return next( new Error( 'CSV is missing header or missing the required columns of Parent and Child.' ) );
