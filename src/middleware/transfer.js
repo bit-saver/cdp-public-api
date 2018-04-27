@@ -163,11 +163,25 @@ const transferAsset = ( model, asset ) => {
         const uploads = [];
         uploads.push( uploadAsset( model.body, download ) );
         if ( download.props.contentType.startsWith( 'video' ) ) {
-          // Test the env variable for true or if not set, assume true
-          if ( /^true/.test( process.env.CF_STREAM_ASYNC || 'true' ) ) {
-            model.putAsyncTransfer( uploadStreamAsync( download, { ...asset, md5: download.props.md5 } ) ); // eslint-disable-line max-len
-          } else uploads.push( uploadStream( download ) );
-          uploads.push( getVideoProperties( download ) );
+          const size = await getVideoProperties( download ).catch( ( err ) => {
+            uploads.push( Promise.reject( err ) );
+          } );
+          if ( size ) {
+            const maxSize = ( process.env.CF_MAX_SIZE || 1024 ) * 1024 * 1024;
+            const fileSize = size.size.filesize;
+            if ( fileSize < maxSize ) {
+              // Test the env variable for true or if not set, assume true
+              if ( /^true/.test( process.env.CF_STREAM_ASYNC || 'true' ) ) {
+                model.putAsyncTransfer( uploadStreamAsync( download, {
+                  ...asset,
+                  md5: download.props.md5
+                } ) ); // eslint-disable-line max-len
+              } else uploads.push( uploadStream( download ) );
+            } else {
+              console.log( `Upload too large for cloudflare: maxSize ${maxSize} fileSize ${fileSize}` );
+            }
+            uploads.push( Promise.resolve( size ) );
+          }
         }
 
         Promise.all( uploads )
