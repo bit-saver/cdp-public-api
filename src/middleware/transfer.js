@@ -239,12 +239,8 @@ export const transferCtrl = Model => async ( req, res, next ) => {
  * @returns {function(*=, *, *)}
  */
 export const asyncTransferCtrl = Model => async ( req, res, next ) => {
-  console.log( 'ASYNC TRANSFER CONTROLLER INIT', req.requestId );
-  console.log( `req.asyncTransfers ${req.asyncTransfers}` );
-  if ( !req.asyncTransfers || req.asyncTransfers.length < 1 ) {
-    console.log( 'return null' );
-    return null;
-  }
+  if ( !req.asyncTransfers || req.asyncTransfers.length < 1 ) return null;
+
   let updated = false;
   const model = new Model();
 
