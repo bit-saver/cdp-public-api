@@ -34,7 +34,13 @@ export const callback = ( req, data ) => {
           ...data
         }
       },
-      () => {}
+      ( err, res, body ) => {
+        if ( err ) {
+          console.error( 'callback error', '\r\n', JSON.stringify( err, null, 2 ) );
+        } else {
+          console.log( 'callback response body', JSON.stringify( body, null, 2 ) );
+        }
+      }
     );
     req.callbackSent = true;
     return true;
