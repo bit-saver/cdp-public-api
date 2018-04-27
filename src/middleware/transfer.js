@@ -240,7 +240,7 @@ export const transferCtrl = Model => async ( req, res, next ) => {
  */
 export const asyncTransferCtrl = Model => async ( req, res, next ) => {
   console.log( 'ASYNC TRANSFER CONTROLLER INIT', req.requestId );
-  if ( !req.asyncTransfers || req.asyncTransfers.length < 1 ) return null;
+  if ( !req.asyncTransfers || req.asyncTransfers.length < 1 ) next();
   let updated = false;
   const model = new Model();
 
