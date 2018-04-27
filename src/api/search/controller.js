@@ -51,7 +51,15 @@ const singleSearch = async ( req, res ) => {
     res.json( await client.search( data.options ).then( esResponse => esResponse ) );
   } catch ( err ) {
     // const message = JSON.parse( err.response ).error.caused_by.reason;
-    const message = JSON.parse( err.response ).error.reason;
+    console.error( 'search error', '\r\n', JSON.stringify( err, null, 2 ) );
+    let message;
+    if ( err.response ) {
+      message = JSON.parse( err.response );
+      if ( message.error ) message = message.error;
+      if ( message.reason ) message = message.reason;
+      else message = err;
+    } else message = err;
+    // const message = JSON.parse( err.response ).error.reason;
     return res.status( 400 ).json( {
       error: true,
       message
