@@ -30,9 +30,6 @@ router.use( '/taxonomy', taxonomyRoutes );
 router.use( '/owner', ownerRoutes );
 router.use( '/zip', zipRoutes );
 
-// test
-router.use( '/test', testRoutes );
-
 router.use( cleanTempFilesCtrl );
 
 // Catch all errors

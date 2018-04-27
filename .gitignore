@@ -46,3 +46,7 @@ jspm_packages
 
 # IDE
 .idea
+
+#private
+scripts
+src/api/test
