@@ -1,5 +1,6 @@
 import TaxonomyModel from '../api/resources/taxonomy/model';
 import controllers from '../api/modules/elastic/controller';
+import parser from '../api/modules/elastic/parser';
 
 /**
  * Adds a categories array property to each locale unit by translating
@@ -57,35 +58,86 @@ export const translateCategories = Model => async ( req, res, next ) => {
     } );
 };
 
-export const keywordCategories = async ( req, res, next ) => {
+/**
+ * Searches for terms that match the provided tags in the provided locale.
+ * If a term is matched, the tag is removed and the term ID is added to the categories property.
+ *
+ * @param req
+ * @param res
+ * @param next
+ * @returns {Promise<*>}
+ */
+export const tagCategories = async ( req, res, next ) => {
   const model = new TaxonomyModel();
   const body = req.body; // eslint-disable-line prefer-destructuring
-  if ( 'keywords' in body !== true ) return next();
-  const keywords = [];
+  if ( 'tags' in body !== true ) return next();
+  const tags = [];
   const terms = body.categories || [];
-  body.keywords = body.keywords.map( kw => kw.toLowerCase() );
-  await body.keywords.reduce(
-    async ( accumP, keyword ) =>
+  body.tags = body.tags.map( kw => kw.toLowerCase() );
+  await body.tags.reduce(
+    async ( accumP, tag ) =>
       accumP.then( async () => {
         await controllers
-          .findTermByName( model, keyword )
+          .findDocByTerm( model, tag )
           .then( ( result ) => {
             if ( !result ) {
-              console.log( 'no term for', keyword );
-              keywords.push( keyword );
+              console.log( 'no term for', tag );
+              tags.push( tag );
             } else if ( !terms.includes( result._id ) ) {
               terms.push( result._id );
             }
           } )
           .catch( () => {
-            console.log( 'no term for', keyword );
-            keywords.push( keyword );
+            console.log( 'no term for', tag );
+            tags.push( tag );
           } );
         return {};
       } ),
     Promise.resolve( {} )
   );
-  body.keywords = keywords;
+  body.tags = tags;
+  body.categories = terms;
+  next();
+};
+
+/**
+ * Searches for taxonomy terms that have a match for a tag in the synonymMapping
+ * property. If a match is found, the tag is removed and the term ID is added to the
+ * categories property.
+ *
+ * @param req
+ * @param res
+ * @param next
+ * @returns {Promise<*>}
+ */
+export const synonymCategories = async ( req, res, next ) => {
+  const model = new TaxonomyModel();
+  const body = req.body; // eslint-disable-line prefer-destructuring
+  if ( 'tags' in body !== true ) return next();
+  const tags = [];
+  const terms = body.categories || [];
+  await body.tags.reduce(
+    async ( accumP, tag ) =>
+      accumP.then( async () => {
+        const results = await model
+          .findDocsBySynonym( tag )
+          .then( parser.parseFindResult() )
+          .catch( () => {
+            console.log( 'no term for', tag );
+            tags.push( tag );
+          } );
+        if ( results ) {
+          const result = results[0];
+          if ( !terms.includes( result._id ) ) {
+            console.log( `matched ${tag} with ${result.language.en}` );
+            terms.push( result._id );
+          }
+        }
+        return {};
+      } ),
+    Promise.resolve( {} )
+  );
+  body.tags = tags;
   body.categories = terms;
   next();
 };

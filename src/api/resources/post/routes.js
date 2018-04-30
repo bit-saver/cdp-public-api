@@ -4,7 +4,11 @@ import PostModel from './model';
 import { validate } from '../../../middleware/validateSchema';
 import { transferCtrl, deleteCtrl } from '../../../middleware/transfer';
 import asyncResponse from '../../../middleware/asyncResponse';
-import { translateCategories, keywordCategories } from '../../../middleware/categories';
+import {
+  translateCategories,
+  tagCategories,
+  synonymCategories
+} from '../../../middleware/categories';
 
 const router = new Router();
 
@@ -17,7 +21,8 @@ router
     validate( PostModel ),
     asyncResponse,
     transferCtrl( PostModel ),
-    keywordCategories,
+    tagCategories,
+    synonymCategories,
     translateCategories( PostModel ),
     controller.indexDocument
   );
@@ -29,7 +34,8 @@ router
     validate( PostModel ),
     asyncResponse,
     transferCtrl( PostModel ),
-    keywordCategories,
+    tagCategories,
+    synonymCategories,
     translateCategories( PostModel ),
     controller.updateDocumentById
   )
