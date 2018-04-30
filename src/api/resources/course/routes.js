@@ -4,7 +4,11 @@ import CourseModel from './model';
 import { transferCtrl, deleteCtrl } from '../../../middleware/transfer';
 import asyncResponse from '../../../middleware/asyncResponse';
 import { validate } from '../../../middleware/validateSchema';
-import { keywordCategories, translateCategories } from '../../../middleware/categories';
+import {
+  translateCategories,
+  tagCategories,
+  synonymCategories
+} from '../../../middleware/categories';
 
 const router = new Router();
 
@@ -17,7 +21,8 @@ router
     validate( CourseModel ),
     asyncResponse,
     transferCtrl( CourseModel ),
-    keywordCategories,
+    tagCategories,
+    synonymCategories,
     translateCategories( CourseModel ),
     controller.indexDocument
   );
@@ -29,7 +34,8 @@ router
     validate( CourseModel ),
     asyncResponse,
     transferCtrl( CourseModel ),
-    keywordCategories,
+    tagCategories,
+    synonymCategories,
     translateCategories( CourseModel ),
     controller.updateDocumentById
   )
