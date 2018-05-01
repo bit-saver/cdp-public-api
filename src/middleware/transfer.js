@@ -15,7 +15,7 @@ const uploadAsset = async ( reqBody, download ) => {
   else d = new Date(); // use current date as fallback
   let month = d.getMonth() + 1; // month is a 0 based index
   if ( month < 10 ) month = `0${month}`; // leading 0
-  const title = `${d.getFullYear()}${month}/${download.props.md5}`;
+  const title = `${d.getFullYear()}/${month}/${download.props.md5}`;
   const result = await aws.upload( {
     title,
     ext: download.props.ext,
