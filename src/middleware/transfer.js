@@ -10,12 +10,17 @@ const downloadAsset = async ( url, requestId ) => {
 };
 
 const uploadAsset = async ( reqBody, download ) => {
+  let d = null;
+  if ( reqBody.published ) d = new Date( reqBody.published );
+  else d = new Date(); // use current date as fallback
+  let month = d.getMonth() + 1; // month is a 0 based index
+  if ( month < 10 ) month = `0${month}`; // leading 0
+  const title = `${d.getFullYear()}${month}/${download.props.md5}`;
   const result = await aws.upload( {
-    title: `${reqBody.site}/${reqBody.type}/${reqBody.post_id}/${download.props.md5}`,
+    title,
     ext: download.props.ext,
     filePath: download.filePath
   } );
-
   return result;
 };
 
