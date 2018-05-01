@@ -23,7 +23,8 @@ const singleSearch = async ( req, res ) => {
       _sourceInclude: req.body.include,
       type: req.body.type,
       index: req.body.index,
-      sort: req.body.sort
+      sort: req.body.sort,
+      scroll: req.body.scroll
     },
     data
   );
@@ -72,4 +73,32 @@ export const search = async ( req, res ) => {
     return multiSearch( req, res );
   }
   return singleSearch( req, res );
+};
+
+export const scroll = async ( req, res ) => {
+  if ( !req.body.scrollId ) {
+    return res.status( 400 ).json( {
+      error: true,
+      message: 'Body must contain scrollId.'
+    } );
+  }
+  try {
+    res.json( await client
+      .scroll( { scrollId: req.body.scrollId, scroll: req.body.scroll || '30s' } )
+      .then( esResponse => esResponse ) );
+  } catch ( err ) {
+    console.error( 'scroll error', '\r\n', JSON.stringify( err, null, 2 ) );
+    let message;
+    if ( err.response ) {
+      message = JSON.parse( err.response );
+      if ( message.error ) message = message.error;
+      if ( message.reason ) message = message.reason;
+      else message = err;
+    } else message = err;
+    // const message = JSON.parse( err.response ).error.reason;
+    return res.status( 400 ).json( {
+      error: true,
+      message
+    } );
+  }
 };
