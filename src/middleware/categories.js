@@ -81,14 +81,12 @@ export const tagCategories = async ( req, res, next ) => {
           .findDocByTerm( model, tag )
           .then( ( result ) => {
             if ( !result ) {
-              console.log( 'no term for', tag );
               tags.push( tag );
             } else if ( !terms.includes( result._id ) ) {
               terms.push( result._id );
             }
           } )
           .catch( () => {
-            console.log( 'no term for', tag );
             tags.push( tag );
           } );
         return {};
@@ -123,7 +121,6 @@ export const synonymCategories = async ( req, res, next ) => {
           .findDocsBySynonym( tag )
           .then( parser.parseFindResult() )
           .catch( () => {
-            console.log( 'no term for', tag );
             tags.push( tag );
           } );
         if ( results ) {
