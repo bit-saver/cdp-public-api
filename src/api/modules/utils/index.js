@@ -24,25 +24,29 @@ export const getQueryFromUuid = ( uuid = '' ) => {
  */
 export const callback = ( req, data ) => {
   if ( req.headers.callback && !req.callbackSent ) {
-    console.log( 'sending callback', req.headers.callback );
-    Request.post(
-      {
-        url: req.headers.callback,
-        json: true,
-        form: {
-          error: 0,
-          ...data
+    if ( !req.headers.callback_errors || req.headers.callback_errors === '0' ) {
+      console.log( 'sending callback', req.headers.callback );
+      Request.post(
+        {
+          url: req.headers.callback,
+          json: true,
+          form: {
+            error: 0,
+            ...data
+          }
+        },
+        ( err, res, body ) => {
+          if ( err ) {
+            console.error( 'callback error', '\r\n', JSON.stringify( err, null, 2 ) );
+          } else {
+            console.log( 'callback response body', JSON.stringify( body, null, 2 ) );
+          }
         }
-      },
-      ( err, res, body ) => {
-        if ( err ) {
-          console.error( 'callback error', '\r\n', JSON.stringify( err, null, 2 ) );
-        } else {
-          console.log( 'callback response body', JSON.stringify( body, null, 2 ) );
-        }
-      }
-    );
-    req.callbackSent = true;
+      );
+      req.callbackSent = true;
+    } else {
+      console.log( 'callback not sent due to errors only requested: ', req.headers.callback_errors );
+    }
     return true;
   }
   return false;

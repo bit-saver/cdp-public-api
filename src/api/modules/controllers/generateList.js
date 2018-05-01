@@ -2,13 +2,14 @@ import controllers from '../elastic/controller';
 import * as utils from '../utils/index';
 
 // POST v1/[resource]
-export const indexDocument = model => ( req, res, next ) => controllers
-  .indexDocument( model, req )
-  .then( ( doc ) => {
-    res.status( 201 ).json( doc );
-    next();
-  } )
-  .catch( error => next( error ) );
+export const indexDocument = model => ( req, res, next ) =>
+  controllers
+    .indexDocument( model, req )
+    .then( ( doc ) => {
+      res.status( 201 ).json( doc );
+      next();
+    } )
+    .catch( error => next( error ) );
 
 export const getAllDocuments = model => async ( req, res, next ) =>
   controllers
