@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import apiErrorHandler from './modules/errorHandler';
-import cleanTempFilesCtrl from '../middleware/cleanTempFiles';
+import { cleanTempFilesCtrl, cleanTempFilesErrorCtrl } from '../middleware/cleanTempFiles';
 
 import adminRoutes from './admin/routes';
 import searchRoutes from './search/routes';
@@ -32,6 +32,7 @@ router.use( '/zip', zipRoutes );
 router.use( cleanTempFilesCtrl );
 
 // Catch all errors
+router.use( cleanTempFilesErrorCtrl );
 router.use( apiErrorHandler );
 
 export default router;
