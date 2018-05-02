@@ -17,7 +17,7 @@ const middlewareSetup = ( app ) => {
   app.use( helmet() );
   app.use( cors() );
   app.use( fileUpload() );
-  app.use( bodyParser.json() );
+  app.use( bodyParser.json( { limit: '100mb' } ) );
   app.use( bodyParser.urlencoded( { extended: true } ) );
 
   if ( process.env.NODE_ENV !== 'local' ) {
