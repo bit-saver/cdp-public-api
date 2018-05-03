@@ -14,7 +14,8 @@ const apiErrorHandler = ( err, req, res, next ) => {
           message: err.message || err.toString(),
           request: req.body,
           params: req.params
-        }
+        },
+        headers: { 'User-Agent': 'API' }
       },
       () => {}
     );

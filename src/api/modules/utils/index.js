@@ -33,7 +33,8 @@ export const callback = ( req, data ) => {
           form: {
             error: 0,
             ...data
-          }
+          },
+          headers: { 'User-Agent': 'API' }
         },
         ( err, res, body ) => {
           if ( err ) {
@@ -102,17 +103,23 @@ export const getTypeFromUrl = async ( url ) => {
   const result = await new Promise( ( resolve ) => {
     const encodedURI = encodeURI( url );
     if ( !encodedURI ) return resolve( null );
-    Request.head( encodedURI, ( error, response ) => {
-      if ( !error && response && response.headers && response.headers['content-type'] ) {
-        if ( response.headers['content-type'].toLowerCase() === 'application/octet-stream' ) {
-          // Missing legitimate content type so use extension instead
-          return resolve( Mime.lookup( encodedURI ) || null );
+    Request.head(
+      {
+        url: encodedURI,
+        headers: { 'User-Agent': 'API' }
+      },
+      ( error, response ) => {
+        if ( !error && response && response.headers && response.headers['content-type'] ) {
+          if ( response.headers['content-type'].toLowerCase() === 'application/octet-stream' ) {
+            // Missing legitimate content type so use extension instead
+            return resolve( Mime.lookup( encodedURI ) || null );
+          }
+          return resolve( response.headers['content-type'] );
         }
-        return resolve( response.headers['content-type'] );
+        if ( error ) console.error( error );
+        resolve( null );
       }
-      if ( error ) console.error( error );
-      resolve( null );
-    } );
+    );
   } );
   return result;
 };

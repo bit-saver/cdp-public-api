@@ -34,7 +34,8 @@ export default function download( url, requestId ) {
     const tmpObj = tempFiles.createTempFile( requestId );
     Request.get( {
       url: encodeURI( url ),
-      gzip: true
+      gzip: true,
+      headers: { 'User-Agent': 'API' }
     } )
       .on( 'error', error => reject( error ) )
       .on( 'response', ( response ) => {
