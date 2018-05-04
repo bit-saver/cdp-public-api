@@ -3,17 +3,18 @@ import Ajv from 'ajv/lib/ajv';
 import courseSchema from '../../modules/schema/course';
 
 /**
- * Video Content Model helps in managing assets within JSON.
+ * Course Content Model helps in managing assets within JSON.
  */
 class Course extends AbstractModel {
   constructor( index = 'courses', type = 'course' ) {
     super( index, type );
-
-    // compile only once
-    this.compileSchema();
   }
 
-  static validateSchema( body ) {
+  static validateSchema( body, useDefaults = true ) {
+    if ( !Course.validate ) {
+      // compile only once
+      Course.compileSchema( useDefaults );
+    }
     const valid = Course.validate( body );
     return {
       valid,
@@ -22,11 +23,11 @@ class Course extends AbstractModel {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  compileSchema() {
+  static compileSchema( useDefaults = true ) {
     // 'useDefaults' adds a default value during validation if it is listed
     // 'removeAdditional' removes any properties during validation that are not in the schema
     // 'coerceTypes' will coerce to appropriate type.  using to coerce string number to number
-    const ajv = new Ajv( { useDefaults: true, removeAdditional: 'all', coerceTypes: true } );
+    const ajv = new Ajv( { useDefaults, removeAdditional: 'all', coerceTypes: true } );
     Course.validate = ajv.compile( courseSchema );
   }
 

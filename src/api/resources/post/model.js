@@ -8,12 +8,13 @@ import postSchema from '../../modules/schema/post';
 class Post extends AbstractModel {
   constructor( index = 'posts', type = 'post' ) {
     super( index, type );
-
-    // compile only once
-    this.compileSchema();
   }
 
-  static validateSchema( body ) {
+  static validateSchema( body, useDefaults = true ) {
+    if ( !Post.validate ) {
+      // compile only once
+      Post.compileSchema( useDefaults );
+    }
     const valid = Post.validate( body );
     return {
       valid,
@@ -22,11 +23,11 @@ class Post extends AbstractModel {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  compileSchema() {
+  static compileSchema( useDefaults = true ) {
     // 'useDefaults' adds a default value during validation if it is listed
     // 'removeAdditional' removes any properties during validation that are not in the schema
     // 'coerceTypes' will coerce to appropriate type.  using to coerce string number to number
-    const ajv = new Ajv( { useDefaults: true, removeAdditional: 'all', coerceTypes: true } );
+    const ajv = new Ajv( { useDefaults, removeAdditional: 'all', coerceTypes: true } );
     Post.validate = ajv.compile( postSchema );
   }
 
