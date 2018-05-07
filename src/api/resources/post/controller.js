@@ -1,7 +1,23 @@
-import { generateControllers } from '../../modules/controllers/generateResource';
+import {
+  generateControllers,
+  setRequestDocWithRetry,
+  setRequestDoc
+} from '../../modules/controllers/generateResource';
 import PostModel from './model';
 
-export default generateControllers( new PostModel() );
+const model = new PostModel();
+
+const setRequestDocBypass = ( req, res, next, uuid ) => {
+  if ( req.method === 'PUT' ) return next(); // bypass for PUT on post type route
+  return setRequestDoc( model )( req, res, next, uuid );
+};
+
+const overrides = {
+  setRequestDoc: setRequestDocBypass,
+  setRequestDocWithRetry: setRequestDocWithRetry( model )
+};
+
+export default generateControllers( model, overrides );
 
 /*
   NOTE: Generic controller methods can be overidden:

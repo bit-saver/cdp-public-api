@@ -15,7 +15,7 @@ router
   .route( '/' )
   .post(
     validate( VideoModel ),
-    asyncResponse,
+    asyncResponse(),
     transferCtrl( VideoModel ),
     translateCategories( VideoModel ),
     controller.indexDocument,
@@ -28,7 +28,7 @@ router
   .route( '/:uuid' )
   .put(
     validate( VideoModel ),
-    asyncResponse,
+    asyncResponse(),
     transferCtrl( VideoModel ),
     translateCategories( VideoModel ),
     controller.updateDocumentById

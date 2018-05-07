@@ -24,8 +24,11 @@ export const updateDocumentById = model => async ( req, res, next ) =>
   controllers
     .updateDocumentById( model, req )
     .then( ( doc ) => {
-      req.esDoc = doc;
-      if ( !utils.callback( req, { doc } ) && !res.headersSent ) res.status( 201 ).json( doc );
+      if ( req.esDoc ) req.esDoc = { ...req.esDoc, ...doc };
+      else req.esDoc = doc;
+      if ( !utils.callback( req, { doc } ) && !res.headersSent ) {
+        res.status( 201 ).json( req.esDoc );
+      }
       next();
     } )
     .catch( err => next( err ) );
@@ -56,6 +59,29 @@ export const setRequestDoc = model => ( req, res, next, uuid ) =>
     .catch( ( error ) => {
       next( error );
     } );
+
+export const setRequestDocWithRetry = model => async ( req, res, next ) => {
+  let attempts = 0;
+  const findDoc = () => {
+    attempts += 1;
+    console.log( `attempting to find document ${req.params.uuid} attempt: `, attempts );
+    controllers
+      .findDocument( model, utils.getQueryFromUuid( req.params.uuid ) )
+      .then( ( doc ) => {
+        if ( doc ) {
+          console.log( `Found document for ${req.params.uuid}, passing along...` );
+          req.esDoc = doc;
+          return next();
+        }
+        if ( attempts < 4 ) {
+          console.log( 'No document found, attempting retry for ', req.params.uuid );
+          setTimeout( findDoc, 10000 );
+        } else return next( new Error( `Document not found with UUID: ${req.params.uuid}` ) );
+      } )
+      .catch( error => next( error ) );
+  };
+  await findDoc();
+};
 
 export const generateControllers = ( model, overrides = {} ) => {
   const defaults = {

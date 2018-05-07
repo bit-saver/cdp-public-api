@@ -19,7 +19,7 @@ router
   .route( '/' )
   .post(
     validate( PostModel ),
-    asyncResponse,
+    asyncResponse(),
     transferCtrl( PostModel ),
     tagCategories,
     synonymCategories,
@@ -31,12 +31,9 @@ router
 router
   .route( '/:uuid' )
   .put(
-    validate( PostModel ),
-    asyncResponse,
-    transferCtrl( PostModel ),
-    tagCategories,
-    synonymCategories,
-    translateCategories( PostModel ),
+    validate( PostModel, false ),
+    asyncResponse( false ),
+    controller.setRequestDocWithRetry,
     controller.updateDocumentById
   )
   .get( controller.getDocumentById )

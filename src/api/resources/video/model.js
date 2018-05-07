@@ -8,12 +8,13 @@ import videoSchema from '../../modules/schema/video';
 class Video extends AbstractModel {
   constructor( index = 'videos', type = 'video' ) {
     super( index, type );
-
-    // compile only once
-    this.compileSchema();
   }
 
-  static validateSchema( body ) {
+  static validateSchema( body, useDefaults = true ) {
+    if ( !Video.validate ) {
+      // compile only once
+      Video.compileSchema( useDefaults );
+    }
     const valid = Video.validate( body );
     return {
       valid,
@@ -22,11 +23,11 @@ class Video extends AbstractModel {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  compileSchema() {
+  static compileSchema( useDefaults = true ) {
     // 'useDefaults' adds a default value during validation if it is listed
     // 'removeAdditional' removes any properties during validation that are not in the schema
     // 'coerceTypes' will coerce to appropriate type.  using to coerce string number to number
-    const ajv = new Ajv( { useDefaults: true, removeAdditional: 'all', coerceTypes: true } );
+    const ajv = new Ajv( { useDefaults, removeAdditional: 'all', coerceTypes: true } );
     Video.validate = ajv.compile( videoSchema );
   }
 

@@ -19,7 +19,7 @@ router
   .route( '/' )
   .post(
     validate( CourseModel ),
-    asyncResponse,
+    asyncResponse(),
     transferCtrl( CourseModel ),
     tagCategories,
     synonymCategories,
@@ -32,7 +32,7 @@ router
   .route( '/:uuid' )
   .put(
     validate( CourseModel ),
-    asyncResponse,
+    asyncResponse(),
     transferCtrl( CourseModel ),
     tagCategories,
     synonymCategories,
