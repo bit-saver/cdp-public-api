@@ -26,7 +26,7 @@ export const updateDocumentById = model => async ( req, res, next ) =>
     .then( ( doc ) => {
       if ( req.esDoc ) req.esDoc = { ...req.esDoc, ...doc };
       else req.esDoc = doc;
-      if ( !utils.callback( req, { doc } ) && !res.headersSent ) {
+      if ( !utils.callback( req, { doc: req.esDoc } ) && !res.headersSent ) {
         res.status( 201 ).json( req.esDoc );
       }
       next();
