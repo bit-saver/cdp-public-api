@@ -11,10 +11,7 @@ class Video extends AbstractModel {
   }
 
   static validateSchema( body, useDefaults = true ) {
-    if ( !Video.validate ) {
-      // compile only once
-      Video.compileSchema( useDefaults );
-    }
+    Video.compileSchema( useDefaults );
     const valid = Video.validate( body );
     return {
       valid,

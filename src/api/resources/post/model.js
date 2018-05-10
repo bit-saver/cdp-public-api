@@ -11,10 +11,7 @@ class Post extends AbstractModel {
   }
 
   static validateSchema( body, useDefaults = true ) {
-    if ( !Post.validate ) {
-      // compile only once
-      Post.compileSchema( useDefaults );
-    }
+    Post.compileSchema( useDefaults );
     const valid = Post.validate( body );
     return {
       valid,

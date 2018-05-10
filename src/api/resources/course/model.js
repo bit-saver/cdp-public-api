@@ -11,10 +11,7 @@ class Course extends AbstractModel {
   }
 
   static validateSchema( body, useDefaults = true ) {
-    if ( !Course.validate ) {
-      // compile only once
-      Course.compileSchema( useDefaults );
-    }
+    Course.compileSchema( useDefaults );
     const valid = Course.validate( body );
     return {
       valid,
