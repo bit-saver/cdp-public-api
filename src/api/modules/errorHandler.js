@@ -13,7 +13,7 @@ const apiErrorHandler = ( err, req, res, next ) => {
           error: 1,
           message: err.message || err.toString(),
           request: req.body,
-          params: req.params
+          params: req.param
         },
         headers: { 'User-Agent': 'API' }
       },

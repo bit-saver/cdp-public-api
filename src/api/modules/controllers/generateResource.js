@@ -49,9 +49,14 @@ export const getDocumentById = () => ( req, res, next ) => {
   }
 };
 
-export const setRequestDoc = model => ( req, res, next, uuid ) =>
-  controllers
-    .findDocument( model, utils.getQueryFromUuid( uuid ) )
+export const setRequestDoc = model => ( req, res, next, uuid ) => {
+  const query = utils.getQueryFromUuid( req.params.uuid );
+  if ( query.site && query.post_id ) {
+    req.param.site = query.site;
+    req.param.post_id = query.post_id;
+  }
+  return controllers
+    .findDocument( model, query )
     .then( ( doc ) => {
       if ( doc ) req.esDoc = doc;
       next();
@@ -59,8 +64,14 @@ export const setRequestDoc = model => ( req, res, next, uuid ) =>
     .catch( ( error ) => {
       next( error );
     } );
+};
 
 export const setRequestDocWithRetry = model => async ( req, res, next ) => {
+  const query = utils.getQueryFromUuid( req.params.uuid );
+  if ( query.site && query.post_id ) {
+    req.param.site = query.site;
+    req.param.post_id = query.post_id;
+  }
   let attempts = 0;
   const findDoc = () => {
     attempts += 1;
@@ -73,7 +84,7 @@ export const setRequestDocWithRetry = model => async ( req, res, next ) => {
           req.esDoc = doc;
           return next();
         }
-        if ( attempts < 4 ) {
+        if ( attempts < 6 ) {
           console.log( 'No document found, attempting retry for ', req.params.uuid );
           setTimeout( findDoc, 10000 );
         } else return next( new Error( `Document not found with UUID: ${req.params.uuid}` ) );
