@@ -50,11 +50,8 @@ export const getDocumentById = () => ( req, res, next ) => {
 };
 
 export const setRequestDoc = model => ( req, res, next, uuid ) => {
-  const query = utils.getQueryFromUuid( req.params.uuid );
-  if ( query.site && query.post_id ) {
-    req.param.site = query.site;
-    req.param.post_id = query.post_id;
-  }
+  const query = utils.getQueryFromUuid( uuid );
+  req.query = query;
   return controllers
     .findDocument( model, query )
     .then( ( doc ) => {
@@ -68,10 +65,7 @@ export const setRequestDoc = model => ( req, res, next, uuid ) => {
 
 export const setRequestDocWithRetry = model => async ( req, res, next ) => {
   const query = utils.getQueryFromUuid( req.params.uuid );
-  if ( query.site && query.post_id ) {
-    req.param.site = query.site;
-    req.param.post_id = query.post_id;
-  }
+  req.query = query;
   let attempts = 0;
   const findDoc = () => {
     attempts += 1;

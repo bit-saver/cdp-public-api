@@ -11,9 +11,15 @@ const addRequestId = ( req, res, next ) => {
   next();
 };
 
+const addQueryProperty = ( req, res, next ) => {
+  req.query = {};
+  next();
+};
+
 const middlewareSetup = ( app ) => {
   app.use( compression() );
   app.use( addRequestId );
+  app.use( addQueryProperty );
   app.use( helmet() );
   app.use( cors() );
   app.use( fileUpload() );

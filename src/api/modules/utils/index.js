@@ -32,7 +32,7 @@ export const callback = ( req, data ) => {
           json: true,
           form: {
             error: 0,
-            params: req.param,
+            params: { ...req.params, ...req.query },
             ...data
           },
           headers: { 'User-Agent': 'API' }
