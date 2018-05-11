@@ -25,6 +25,8 @@ export const getQueryFromUuid = ( uuid = '' ) => {
 export const callback = ( req, data ) => {
   if ( req.headers.callback && !req.callbackSent ) {
     if ( !req.headers.callback_errors || req.headers.callback_errors === '0' ) {
+      if ( !req.callbackAttempt ) req.callbackAttempt = 1;
+      else req.callbackAttempt += 1;
       console.log( 'sending callback', req.headers.callback );
       Request.post(
         {
@@ -39,13 +41,19 @@ export const callback = ( req, data ) => {
         },
         ( err, res, body ) => {
           if ( err ) {
+            req.callbackSent = true;
             console.error( 'callback error', '\r\n', JSON.stringify( err, null, 2 ) );
+          } else if ( !body && req.callbackAttempt < 3 ) {
+            console.warn( 'callback response body is undefined, retrying...' );
+            setTimeout( () => {
+              callback( req, data );
+            }, 5000 );
           } else {
+            req.callbackSent = true;
             console.log( 'callback response body', JSON.stringify( body, null, 2 ) );
           }
         }
       );
-      req.callbackSent = true;
     } else {
       console.log( 'callback not sent due to errors only requested: ', req.headers.callback_errors );
     }
