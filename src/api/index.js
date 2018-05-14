@@ -17,7 +17,7 @@ const router = new Router();
 
 // Regex route rule
 // Runs all non public routes thru token authentication
-router.use( /\/(admin|video|post|course|language|taxonomy|owner)\/?.*$/, requireAuth );
+router.use( /\/(admin|video|post|course|language|taxonomy|owner)\/?.*$/i, requireAuth );
 
 // public routes -- /v1/search, etc., v1 comes from app.use in index.js
 router.use( '/search', searchRoutes );

@@ -11,17 +11,16 @@ const router = new Router();
  */
 export const requireAuth = ( req, res, next ) => {
   if ( req.headers && typeof req.headers.authorization !== 'undefined' ) {
-    const bearer = req.headers.authorization.split( ' ' );
-    const token = bearer[1];
+    const token = req.headers.authorization.split( ' ' )[1];
     jwt.verify( token, process.env.JWT_SECRET_KEY, ( err, decoded ) => {
-      if ( err ) next( err );
-      if ( decoded.user !== process.env.JWT_SUBJECT ) {
-        res.status( 403 ).json( 'Invalid user credentials' );
+      if ( err || decoded.user !== process.env.JWT_SUBJECT ) {
+        next( { error: 'Invalid user credentials' } );
       }
     } );
     return next();
   }
-  res.status( 403 ).json( 'Unauthorized' );
+
+  next( { error: 'Unauthorized' } );
 };
 
 /**
