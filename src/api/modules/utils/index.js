@@ -34,7 +34,7 @@ export const callback = ( req, data ) => {
           json: true,
           form: {
             error: 0,
-            params: { ...req.params, ...req.query },
+            params: { ...req.params, ...req.queryArgs },
             ...data
           },
           headers: { 'User-Agent': 'API' }

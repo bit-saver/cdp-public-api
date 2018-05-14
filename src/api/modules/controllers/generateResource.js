@@ -51,7 +51,7 @@ export const getDocumentById = () => ( req, res, next ) => {
 
 export const setRequestDoc = model => ( req, res, next, uuid ) => {
   const query = utils.getQueryFromUuid( uuid );
-  req.query = query;
+  req.queryArgs = query;
   return controllers
     .findDocument( model, query )
     .then( ( doc ) => {
@@ -65,7 +65,7 @@ export const setRequestDoc = model => ( req, res, next, uuid ) => {
 
 export const setRequestDocWithRetry = model => async ( req, res, next ) => {
   const query = utils.getQueryFromUuid( req.params.uuid );
-  req.query = query;
+  req.queryArgs = query;
   let attempts = 0;
   const findDoc = () => {
     attempts += 1;

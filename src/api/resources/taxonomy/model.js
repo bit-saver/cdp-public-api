@@ -33,6 +33,7 @@ class Taxonomy extends AbstractModel {
       const found = terms.find( val => term.parents.includes( val._id ) );
       if ( found ) found.children.push( term );
     } );
+    console.log( JSON.stringify( ret, null, 2 ) );
     return ret;
   }
 
