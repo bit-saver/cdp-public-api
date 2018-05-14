@@ -14,13 +14,13 @@ export const requireAuth = ( req, res, next ) => {
     const token = req.headers.authorization.split( ' ' )[1];
     jwt.verify( token, process.env.JWT_SECRET_KEY, ( err, decoded ) => {
       if ( err || decoded.user !== process.env.JWT_SUBJECT ) {
-        next( { error: 'Invalid user credentials' } );
+        next( { error: 1, message: 'Invalid user credentials' } );
       }
     } );
     return next();
   }
 
-  next( { error: 'Unauthorized' } );
+  next( { error: 1, message: 'Unauthorized' } );
 };
 
 /**
