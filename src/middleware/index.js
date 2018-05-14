@@ -26,8 +26,10 @@ const middlewareSetup = ( app ) => {
   app.use( bodyParser.json( { limit: '100mb' } ) );
   app.use( bodyParser.urlencoded( { extended: true } ) );
 
-  if ( process.env.NODE_ENV !== 'local' ) {
+  if ( process.env.NODE_ENV === 'development' ) {
     app.use( morgan( 'dev' ) );
+  } else {
+    app.use( morgan( 'combined' ) );
   }
 };
 
