@@ -11,14 +11,21 @@ import languageRoutes from './resources/language/routes';
 import taxonomyRoutes from './resources/taxonomy/routes';
 import ownerRoutes from './resources/owner/routes';
 import zipRoutes from './tasks/zip/routes';
+import authRoutes, { requireAuth } from './modules/controllers/authentication';
 
 const router = new Router();
 
+// Regex route rule
+// Runs all non public routes thru token authentication
+router.use( /\/(admin|video|post|course|language|taxonomy|owner)\/?$/, requireAuth );
+
+// public routes -- /v1/search, etc., v1 comes from app.use in index.js
+router.use( '/search', searchRoutes );
+router.use( '/zip', zipRoutes );
+router.use( '/auth', authRoutes );
+
 // admin routes
 router.use( '/admin', adminRoutes );
-
-// search -- /v1/search, etc., v1 comes from app.use in index.js
-router.use( '/search', searchRoutes );
 
 // resources
 router.use( '/video', videoRoutes );
@@ -27,7 +34,6 @@ router.use( '/course', courseRoutes );
 router.use( '/language', languageRoutes );
 router.use( '/taxonomy', taxonomyRoutes );
 router.use( '/owner', ownerRoutes );
-router.use( '/zip', zipRoutes );
 
 router.use( cleanTempFilesCtrl );
 
