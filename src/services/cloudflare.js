@@ -54,6 +54,7 @@ const upload = filePath =>
         const ret = { url: '', uid: '', thumbnail: '' };
         if ( streamUrl ) {
           let tracks = 0;
+          let completed = null;
           const trackEncoding = () => {
             tracks += 1;
             if ( tracks > maxEncodingTracks ) {
@@ -74,7 +75,11 @@ const upload = filePath =>
                   const uid = body.result.uid; // eslint-disable-line prefer-destructuring
                   const status = body.result.status; // eslint-disable-line prefer-destructuring
                   if ( status.state === 'inprogress' ) {
-                    console.log( `Encoding on Cloudflare [${uid}] - ${parseFloat( status.pctComplete ).toFixed( 2 )}%` );
+                    const pctComplete = parseFloat( status.pctComplete ).toFixed( 2 );
+                    if ( !completed || pctComplete !== completed ) {
+                      completed = pctComplete;
+                      console.log( `Encoding on Cloudflare [${uid}] - ${completed}%` );
+                    }
                   } else if ( status.state === 'ready' ) {
                     console.log( `Encoding on Cloudflare [${uid}] - result`, body );
                     ret.uid = uid;

@@ -70,12 +70,16 @@ const upload = ( {
       ACL: 'private' // TODO: Switch back to 'public-read' for any kind of non-test based functionality
     };
 
+    let completed = null;
     const manager = s3.upload( params );
     manager
       .on( 'httpUploadProgress', ( progress ) => {
         // eslint-disable-next-line no-mixed-operators
         const percent = ( progress.loaded / progress.total * 100 ).toFixed( 0 );
-        console.info( `Uploading to S3 - ${key}: ${percent}%` );
+        if ( !completed || percent !== completed ) {
+          completed = percent;
+          console.info( `Uploading to S3 - ${key}: ${percent}%` );
+        }
       } )
       .promise()
       .then( ( data ) => {
