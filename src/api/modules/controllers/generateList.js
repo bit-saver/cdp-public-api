@@ -16,7 +16,6 @@ export const getAllDocuments = model => async ( req, res, next ) =>
     .getAllDocuments( model )
     .then( ( docs ) => {
       let ret = docs;
-      console.log( req.path );
       if ( 'tree' in req.query ) ret = model.constructTree( docs );
       if ( !utils.callback( req, ret ) ) res.status( 201 ).json( ret );
     } )

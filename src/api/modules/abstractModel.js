@@ -30,13 +30,6 @@ class AbstractModel {
   // TODO: add correct signature, i.e. asset param
   // need to disable eslint rule for this method
   // eslint-disable-next-line class-methods-use-this
-  pubAssetByHash() {
-    throw new Error( 'Method not implemented: putAssetByHash' );
-  }
-
-  // TODO: add correct signature, i.e. asset param
-  // need to disable eslint rule for this method
-  // eslint-disable-next-line class-methods-use-this
   getUnits() {
     throw new Error( 'Method not implemented: getUnits' );
   }

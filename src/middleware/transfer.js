@@ -104,13 +104,15 @@ const updateAsset = ( model, asset, result, md5 ) => {
   } );
 };
 
-const deleteAssets = ( assets ) => {
+const deleteAssets = async ( assets ) => {
+  const promises = [];
   assets.forEach( ( asset ) => {
     if ( asset.url ) aws.remove( asset );
     if ( asset.stream && asset.stream.uid ) {
-      cloudflare.remove( asset.stream.uid );
+      promises.push( cloudflare.remove( asset.stream.uid ) );
     }
   } );
+  await Promise.all( promises ).catch( err => err );
 };
 
 /**
@@ -310,6 +312,6 @@ export const deleteCtrl = Model => async ( req, res, next ) => {
     .filter( asset => asset.downloadUrl || asset.stream )
     .map( asset => ( { url: asset.downloadUrl, stream: asset.stream } ) );
 
-  deleteAssets( urlsToRemove );
+  await deleteAssets( urlsToRemove );
   next();
 };

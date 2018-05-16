@@ -150,7 +150,8 @@ const remove = uid =>
     };
     const timer = setTimeout( () => {
       resolve( 'Timed out but probably successful.' );
-    }, 10 * 1000 );
+    }, 2 * 1000 );
+    console.log( 'Deleting from Cloudflare: ', uid );
     Request(
       {
         url: endpoint,
@@ -159,8 +160,8 @@ const remove = uid =>
         method: 'DELETE'
       },
       ( err, res, body ) => {
-        clearTimeout( timer );
         console.log( JSON.stringify( { err, res, body }, null, 2 ) );
+        clearTimeout( timer );
         if ( err ) return reject( err );
         if ( body && !body.success ) return reject( body );
         return resolve( body );
