@@ -163,7 +163,9 @@ class AbstractModel {
     this.reqAssets = this.getAssets( this.body );
     this.esAssets.forEach( ( ass ) => {
       if ( !this.reqAssets.find( val => val.md5 === ass.md5 ) ) {
-        if ( ass.downloadUrl ) filesToRemove.push( { url: ass.downloadUrl } );
+        if ( ass.downloadUrl || ass.stream ) {
+          filesToRemove.push( { url: ass.downloadUrl, stream: ass.stream } );
+        } // eslint-disable-line max-len
       }
     } );
 
