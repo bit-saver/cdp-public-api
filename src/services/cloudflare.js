@@ -29,6 +29,7 @@ const upload = filePath =>
       'X-Auth-Email': process.env.CF_STREAM_EMAIL || '',
       'Content-Type': 'application/json'
     };
+    let uploadComplete = null;
     const uploadObj = new tus.Upload( pass, {
       endpoint,
       headers,
@@ -44,8 +45,11 @@ const upload = filePath =>
       onProgress: ( bytesUploaded, bytesTotal ) => {
         const uid = uploadObj.url.replace( endpoint, '' ).replace( '/', '' );
         // eslint-disable-next-line no-mixed-operators
-        const percentage = ( bytesUploaded / bytesTotal * 100 ).toFixed( 2 );
-        console.log( `Uploading to Cloudflare [${uid}] - ${percentage}%` );
+        const percentage = bytesUploaded / bytesTotal * 100;
+        if ( !uploadComplete || Math.round( percentage ) !== Math.round( uploadComplete ) ) {
+          uploadComplete = percentage;
+          console.log( `Uploading to Cloudflare [${uid}] - ${percentage.toFixed( 2 )}%` );
+        }
       },
       onSuccess: () => {
         // The video has been uploaded and will now be encoded.
@@ -55,6 +59,7 @@ const upload = filePath =>
         if ( streamUrl ) {
           let tracks = 0;
           let completed = null;
+          let state = null;
           const trackEncoding = () => {
             tracks += 1;
             if ( tracks > maxEncodingTracks ) {
@@ -75,9 +80,9 @@ const upload = filePath =>
                   const uid = body.result.uid; // eslint-disable-line prefer-destructuring
                   const status = body.result.status; // eslint-disable-line prefer-destructuring
                   if ( status.state === 'inprogress' ) {
-                    const pctComplete = parseFloat( status.pctComplete ).toFixed( 2 );
-                    if ( !completed || pctComplete !== completed ) {
-                      completed = pctComplete;
+                    const pctComplete = parseFloat( status.pctComplete );
+                    if ( !completed || Math.round( pctComplete ) !== Math.round( completed ) ) {
+                      completed = pctComplete.toFixed( 2 );
                       console.log( `Encoding on Cloudflare [${uid}] - ${completed}%` );
                     }
                   } else if ( status.state === 'ready' ) {
@@ -87,7 +92,10 @@ const upload = filePath =>
                     ret.thumbnail = body.result.thumbnail;
                     return resolve( { stream: ret } );
                   } else if ( status.state === 'queued' ) {
-                    console.log( `Encoding on Cloudflare [${uid}] - queued` );
+                    if ( !state ) {
+                      state = 'queued';
+                      console.log( `Encoding on Cloudflare [${uid}] - queued` );
+                    }
                   } else if ( status.state !== 'queued' ) {
                     return reject( new Error( `Error in encoding process: ${status.state}` ) );
                   } else {
@@ -143,36 +151,35 @@ const list = () =>
     );
   } );
 
-const remove = uid =>
-  new Promise( ( resolve, reject ) => {
-    const endpoint = `https://api.cloudflare.com/client/v4/zones/${
-      process.env.CF_STREAM_ZONE
-    }/media/${uid}`;
-    const headers = {
-      'X-Auth-Key': process.env.CF_STREAM_KEY || '',
-      'X-Auth-Email': process.env.CF_STREAM_EMAIL || '',
-      'Content-Type': 'application/json'
-    };
-    const timer = setTimeout( () => {
-      resolve( 'Timed out but probably successful.' );
-    }, 2 * 1000 );
-    console.log( 'Deleting from Cloudflare: ', uid );
-    Request(
-      {
-        url: endpoint,
-        headers,
-        json: true,
-        method: 'DELETE'
-      },
-      ( err, res, body ) => {
-        console.log( JSON.stringify( { err, res, body }, null, 2 ) );
-        clearTimeout( timer );
-        if ( err ) return reject( err );
-        if ( body && !body.success ) return reject( body );
-        return resolve( body );
+const remove = ( uid ) => {
+  const endpoint = `https://api.cloudflare.com/client/v4/zones/${
+    process.env.CF_STREAM_ZONE
+  }/media/${uid}`;
+  const headers = {
+    'X-Auth-Key': process.env.CF_STREAM_KEY || '',
+    'X-Auth-Email': process.env.CF_STREAM_EMAIL || '',
+    'Content-Type': 'application/json'
+  };
+  console.log( 'Deleting from Cloudflare: ', uid );
+  Request(
+    {
+      url: endpoint,
+      headers,
+      json: true,
+      method: 'DELETE'
+    },
+    ( err ) => {
+      if ( err ) {
+        console.log(
+          'Error deleting from Cloudflare, UID: ',
+          uid,
+          '\r\n',
+          JSON.stringify( err, null, 2 )
+        );
       }
-    );
-  } );
+    }
+  );
+};
 
 const removeAll = () =>
   new Promise( async ( resolve, reject ) => {
