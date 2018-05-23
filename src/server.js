@@ -2,6 +2,8 @@ import express from 'express';
 import middlewareSetup from './middleware';
 import routes from './api';
 
+require( 'newrelic' );
+
 // Declare an app from express
 const app = express();
 
