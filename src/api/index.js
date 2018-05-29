@@ -23,7 +23,7 @@ router.use( /\/(admin|video|post|course|language|taxonomy|owner)\/?.*$/i, requir
 router.use( '/search', searchRoutes );
 router.use( '/zip', zipRoutes );
 
-router.use( '/auth', authRoutes );
+// router.use( '/auth', authRoutes );
 
 // admin routes
 router.use( '/admin', adminRoutes );
