@@ -1,4 +1,5 @@
 # Change Log
+##### All notable changes to this project will be documented in this file.
 
 ## [1.0.0](https://github.com/IIP-Design/cdp-public-api/tree/1.0.0) (2018-05-29)
 
