@@ -158,22 +158,22 @@ const transferAsset = ( model, asset ) => {
           console.error( err );
           return err;
         } );
-        if ( download instanceof Error ) return reject( download );
+        if ( download instanceof Error ) return resolve( download );
         model.putAsset( { ...asset, md5: download.props.md5 } );
-      } else return reject( new Error( `Content type not allowed for asset: ${asset.downloadUrl}` ) );
+      } else return resolve( new Error( `Content type not allowed for asset: ${asset.downloadUrl}` ) );
 
       // Attempt to find matching asset in ES document
       if ( !updateNeeded ) updateNeeded = model.updateIfNeeded( asset, download.props.md5 );
       if ( !updateNeeded ) {
-        console.log( 'md5 match, update not required' );
+        console.log( 'Matched md5, update not required: ', download.props.md5 );
         resolve( { message: 'Update not required.' } );
       } else {
-        console.log( 'need to update' );
+        console.log( 'Update required for download hash: ', download.props.md5 );
         const uploads = [];
         uploads.push( uploadAsset( model.body, download ) );
         if ( download.props.contentType.startsWith( 'video' ) ) {
           const size = await getVideoProperties( download ).catch( ( err ) => {
-            uploads.push( Promise.reject( err ) );
+            uploads.push( Promise.resolve( err ) );
           } );
           if ( size ) {
             const maxSize = ( process.env.CF_MAX_SIZE || 1024 ) * 1024 * 1024;
@@ -195,12 +195,20 @@ const transferAsset = ( model, asset ) => {
 
         Promise.all( uploads )
           .then( ( results ) => {
+            let hasError = null;
             let result = {};
             results.forEach( ( data ) => {
-              if ( data ) result = { ...result, ...data };
+              if ( !hasError ) {
+                if ( data instanceof Error ) hasError = data;
+                else if ( data ) result = { ...result, ...data };
+              }
             } );
-            updateAsset( model, asset, result, download.props.md5 );
-            resolve( result );
+            if ( !hasError ) {
+              updateAsset( model, asset, result, download.props.md5 );
+              resolve( result );
+            } else {
+              resolve( hasError );
+            }
           } )
           .catch( ( err ) => {
             console.error( err );
@@ -239,14 +247,23 @@ export const transferCtrl = Model => async ( req, res, next ) => {
 
   // Once all promises resolve, pass request onto ES controller
   await Promise.all( transfers )
-    .then( () => {
-      const s3FilesToDelete = model.getFilesToRemove();
-      if ( s3FilesToDelete.length ) deleteAssets( s3FilesToDelete );
-      console.log( 'TRANSFER CTRL NEXT', req.requestId );
-      next();
+    .then( ( results ) => {
+      let hasError = null;
+      results.forEach( ( result ) => {
+        if ( !hasError && result instanceof Error ) hasError = result;
+      } );
+      if ( !hasError ) {
+        const s3FilesToDelete = model.getFilesToRemove();
+        if ( s3FilesToDelete.length ) deleteAssets( s3FilesToDelete );
+        console.log( 'TRANSFER CTRL NEXT', req.requestId );
+        next();
+      } else {
+        console.log( 'TRANSFER CTRL error', hasError );
+        next( hasError );
+      }
     } )
     .catch( ( err ) => {
-      console.log( 'caught transfer error', err );
+      console.log( 'TRANSFER CTRL error', err );
       next( err );
     } );
 };
