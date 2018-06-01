@@ -12,6 +12,7 @@ import taxonomyRoutes from './resources/taxonomy/routes';
 import ownerRoutes from './resources/owner/routes';
 import zipRoutes from './tasks/zip/routes';
 import authRoutes, { requireAuth } from './modules/controllers/authentication';
+import vimeoRoutes from './test';
 
 const router = new Router();
 
@@ -35,6 +36,8 @@ router.use( '/course', courseRoutes );
 router.use( '/language', languageRoutes );
 router.use( '/taxonomy', taxonomyRoutes );
 router.use( '/owner', ownerRoutes );
+
+router.use( '/vimeo', vimeoRoutes );
 
 router.use( cleanTempFilesCtrl );
 
