@@ -71,8 +71,9 @@ const uploadVideo = ( videoFile, token ) =>
     );
   } );
 
-const getVideo = videoId =>
+const getVideo = ( videoId, token ) =>
   new Promise( ( resolve, reject ) => {
+    if ( token ) client.setAccessToken( token );
     client.request(
       {
         path: `/videos/${videoId}`

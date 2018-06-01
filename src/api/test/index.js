@@ -9,8 +9,8 @@ router.get( '/', async ( req, res ) => {
   res.redirect( url );
 } );
 
-router.get( '/video', async ( req, res ) => {
-  res.json( await vimeo.getVideo( req.query.videoId ) );
+router.get( '/getVideo', async ( req, res ) => {
+  res.json( await vimeo.getVideo( req.query.videoId, req.headers.access_token ) );
 } );
 
 router.get( '/callback', async ( req, res ) => {
