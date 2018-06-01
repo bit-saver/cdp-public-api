@@ -5,6 +5,9 @@
  * description of configuration variables and their potential values.
  */
 exports.config = {
+  agent_enabled:
+    ( ( process.env.NEW_RELIC_LICENSE_KEY && process.env.NEW_RELIC_LICENSE_KEY !== '' ) || null ) !==
+    null,
   /**
    * Array of application names.
    */

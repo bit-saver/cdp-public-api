@@ -1,4 +1,4 @@
-// require( 'newrelic' );
+require( 'newrelic' );
 
 import express from 'express';
 import middlewareSetup from './middleware';
