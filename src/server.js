@@ -1,3 +1,5 @@
+require( 'newrelic' );
+
 import express from 'express';
 import middlewareSetup from './middleware';
 import routes from './api';
