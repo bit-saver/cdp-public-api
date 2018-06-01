@@ -1,41 +1,43 @@
 # cdp-public-api
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [Getting Started](#getting-started)
-  - [Configuration](#configuration)
-  - [Using Docker](#using-docker)
-  - [Scripts](#scripts)
-- [Search Route](#search-route)
-  - [`/v1/search`](#v1search)
-    - [Request](#request)
-    - [Response](#response)
-    - [Search Properties](#search-properties)
-- [Resource Routes](#resource-routes)
-  - [`/v1/video/{site}_{post_id}`](#v1videosite_post_id)
-    - [Request](#request-1)
-    - [Response](#response-1)
-  - [`/v1/post/{site}_{post_id}`](#v1postsite_post_id)
-    - [Request](#request-2)
-    - [Response](#response-2)
-  - [`/v1/course`](#v1course)
-  - [`/v1/language`](#v1language)
-    - [Request](#request-3)
-    - [Response](#response-3)
-  - [`/v1/language/bulk`](#v1languagebulk)
-    - [Request](#request-4)
-  - [`/v1/taxonomy`](#v1taxonomy)
-    - [Request](#request-5)
-    - [Response](#response-4)
-  - [`/v1/taxonomy/bulk`](#v1taxonomybulk)
-    - [Request](#request-6)
-  - [`/v1/owner`](#v1owner)
-    - [Request](#request-7)
-    - [Response](#response-5)
-  - [`/v1/owner/bulk`](#v1ownerbulk)
-    - [Request](#request-8)
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+* [Getting Started](#getting-started)
+  * [Configuration](#configuration)
+  * [Using Docker](#using-docker)
+  * [Scripts](#scripts)
+* [Search Route](#search-route)
+  * [`/v1/search`](#v1search)
+    * [Request](#request)
+    * [Response](#response)
+    * [Search Properties](#search-properties)
+* [Resource Routes](#resource-routes)
+  * [`/v1/video/{site}_{post_id}`](#v1videosite_post_id)
+    * [Request](#request-1)
+    * [Response](#response-1)
+  * [`/v1/post/{site}_{post_id}`](#v1postsite_post_id)
+    * [Request](#request-2)
+    * [Response](#response-2)
+  * [`/v1/course`](#v1course)
+  * [`/v1/language`](#v1language)
+    * [Request](#request-3)
+    * [Response](#response-3)
+  * [`/v1/language/bulk`](#v1languagebulk)
+    * [Request](#request-4)
+  * [`/v1/taxonomy`](#v1taxonomy)
+    * [Request](#request-5)
+    * [Response](#response-4)
+  * [`/v1/taxonomy/bulk`](#v1taxonomybulk)
+    * [Request](#request-6)
+  * [`/v1/owner`](#v1owner)
+    * [Request](#request-7)
+    * [Response](#response-5)
+  * [`/v1/owner/bulk`](#v1ownerbulk)
+    * [Request](#request-8)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -50,18 +52,20 @@ Add a `.env` file to the root of your project and set the following environment 
 ```text
 NODE_ENV=development
 PORT=8080
+
 AWS_HOST=localhost:9200
-#AWS_REGION=
-#AWS_ACCESS_KEY_ID=
-#AWS_SECRET_ACCESS_KEY=
-AWS_S3_ACCESS_KEY=
-AWS_S3_SECRET_KEY=
-AWS_S3_REGION=us-east-1
+AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
 AWS_S3_BUCKET=
+
 CF_STREAM_ASYNC=true
 CF_STREAM_EMAIL=
 CF_STREAM_KEY=
 CF_STREAM_ZONE=
+
+JWT_SUBJECT=
+JWT_SECRET_KEY=
 ```
 
 **Important**: If you are connecting to AWS Elasticsearch, set the environment field to `production`. By default, the environment is set to `development`.
@@ -115,104 +119,108 @@ Content-Type: application/json
 
 ```json
 {
-    "took": 11,
-    "timed_out": false,
-    "_shards": {
-        "total": 41,
-        "successful": 41,
-        "skipped": 0,
-        "failed": 0
-    },
-    "hits": {
-        "total": 1,
-        "max_score": 0.2876821,
-        "hits": [
-            {
-                "_index": "posts",
-                "_type": "post",
-                "_id": "AWLZj5ZMln4rDxbHa5IA",
-                "_score": 0.2876821,
-                "_source": {
-                    "owner": "Content Delivery Platform",
-                    "comment_count": 0,
-                    "thumbnail": {
-                        "small": {
-                            "orientation": "landscape",
-                            "width": 300,
-                            "url": "http://cdp.local/wp-content/uploads/2018/02/tyler_photo-300x200.jpg",
-                            "height": 200
-                        },
-                        "large": {
-                            "orientation": "landscape",
-                            "width": 2160,
-                            "url": "http://cdp.local/wp-content/uploads/2018/02/tyler_photo.jpg",
-                            "height": 1440
-                        },
-                        "medium": {
-                            "orientation": "landscape",
-                            "width": 768,
-                            "url": "http://cdp.local/wp-content/uploads/2018/02/tyler_photo-768x512.jpg",
-                            "height": 512
-                        },
-                        "full": {
-                            "orientation": "landscape",
-                            "width": 2160,
-                            "url": "http://cdp.local/wp-content/uploads/2018/02/tyler_photo.jpg",
-                            "height": 1440
-                        }
-                    },
-                     "languages": [
-                        {
-                          "post_id": 27,
-                          "language": {
-                            "id": 1,
-                            "language_code": "es",
-                            "locale": "es-mx",
-                            "text_direction": "ltr",
-                            "display_name": "Spanish",
-                            "native_name": "Español"
-                          }
-                        }
-                    ],
-                    "author": {
-                        "name": "thebenstreit",
-                        "id": 1
-                    },
-                    "link": "http://cdp.local/2018/02/05/the-state-of-affairs/",
-                    "language": {
-                        "language_code": "en",
-                        "text_direction": "ltr",
-                        "_id": "AWKNa7G1dOZTaU7CiFIq",
-                        "display_name": "English",
-                        "locale": "en",
-                        "native_name": "English"
-                    },
-                    "published": "2018-02-05T22:22:44+00:00",
-                    "type": "post",
-                    "title": "The State of Affairs",
-                    "content": "<p>Is grave.</p>\n",
-                    "tags": [
-                        "another tag",
-                        "test",
-                        "category 2",
-                        "subcat 1",
-                        "another tag"
-                    ],
-                    "site": "cdp.local",
-                    "post_id": 17,
-                    "modified": "2018-04-18T16:26:15+00:00",
-                    "categories": [
-                        {
-                            "name": "About America",
-                            "id": "AWKr-4EuPjd8uXvEbbw0"
-                        }
-                    ],
-                    "excerpt": "",
-                    "slug": "the-state-of-affairs"
-                }
+  "took": 11,
+  "timed_out": false,
+  "_shards": {
+    "total": 41,
+    "successful": 41,
+    "skipped": 0,
+    "failed": 0
+  },
+  "hits": {
+    "total": 1,
+    "max_score": 0.2876821,
+    "hits": [
+      {
+        "_index": "posts",
+        "_type": "post",
+        "_id": "AWLZj5ZMln4rDxbHa5IA",
+        "_score": 0.2876821,
+        "_source": {
+          "owner": "Content Delivery Platform",
+          "comment_count": 0,
+          "thumbnail": {
+            "small": {
+              "orientation": "landscape",
+              "width": 300,
+              "url":
+                "http://cdp.local/wp-content/uploads/2018/02/tyler_photo-300x200.jpg",
+              "height": 200
+            },
+            "large": {
+              "orientation": "landscape",
+              "width": 2160,
+              "url":
+                "http://cdp.local/wp-content/uploads/2018/02/tyler_photo.jpg",
+              "height": 1440
+            },
+            "medium": {
+              "orientation": "landscape",
+              "width": 768,
+              "url":
+                "http://cdp.local/wp-content/uploads/2018/02/tyler_photo-768x512.jpg",
+              "height": 512
+            },
+            "full": {
+              "orientation": "landscape",
+              "width": 2160,
+              "url":
+                "http://cdp.local/wp-content/uploads/2018/02/tyler_photo.jpg",
+              "height": 1440
             }
-        ]
-    }
+          },
+          "languages": [
+            {
+              "post_id": 27,
+              "language": {
+                "id": 1,
+                "language_code": "es",
+                "locale": "es-mx",
+                "text_direction": "ltr",
+                "display_name": "Spanish",
+                "native_name": "Español"
+              }
+            }
+          ],
+          "author": {
+            "name": "thebenstreit",
+            "id": 1
+          },
+          "link": "http://cdp.local/2018/02/05/the-state-of-affairs/",
+          "language": {
+            "language_code": "en",
+            "text_direction": "ltr",
+            "_id": "AWKNa7G1dOZTaU7CiFIq",
+            "display_name": "English",
+            "locale": "en",
+            "native_name": "English"
+          },
+          "published": "2018-02-05T22:22:44+00:00",
+          "type": "post",
+          "title": "The State of Affairs",
+          "content": "<p>Is grave.</p>\n",
+          "tags": [
+            "another tag",
+            "test",
+            "category 2",
+            "subcat 1",
+            "another tag"
+          ],
+          "site": "cdp.local",
+          "post_id": 17,
+          "modified": "2018-04-18T16:26:15+00:00",
+          "categories": [
+            {
+              "name": "About America",
+              "id": "AWKr-4EuPjd8uXvEbbw0"
+            }
+          ],
+          "excerpt": "",
+          "slug": "the-state-of-affairs"
+        }
+      }
+    ]
+  }
 }
 ```
 
@@ -244,76 +252,79 @@ GET /v1/video/cdp.local_12
 
 ```json
 {
-    "_id": "AWLZ4Ie_ln4rDxbHa5IC",
-    "post_id": 12,
-    "site": "cdp.local",
-    "type": "video",
-    "published": "2018-02-02T18:31:33+00:00",
-    "modified": "2018-04-18T17:55:12+00:00",
-    "owner": "IIP Publications",
-    "author": "Coffee Lover",
-    "duration": 240,
-    "unit": [
+  "_id": "AWLZ4Ie_ln4rDxbHa5IC",
+  "post_id": 12,
+  "site": "cdp.local",
+  "type": "video",
+  "published": "2018-02-02T18:31:33+00:00",
+  "modified": "2018-04-18T17:55:12+00:00",
+  "owner": "IIP Publications",
+  "author": "Coffee Lover",
+  "duration": 240,
+  "unit": [
+    {
+      "transcript": {
+        "srcUrl":
+          "https://cdp-video-tst.s3.amazonaws.com/cdp.local/video/12/6efd8a36f86774e6ca088923b77a1e29.txt",
+        "text": "",
+        "md5": "6efd8a36f86774e6ca088923b77a1e29"
+      },
+      "srt": {
+        "srcUrl":
+          "https://cdp-video-tst.s3.amazonaws.com/cdp.local/video/12/be0948bd9ed9e20a55df874d3c7d6f7b.srt",
+        "md5": "be0948bd9ed9e20a55df874d3c7d6f7b"
+      },
+      "language": {
+        "language_code": "en",
+        "text_direction": "ltr",
+        "display_name": "English",
+        "locale": "en",
+        "native_name": "English"
+      },
+      "source": [
         {
-            "transcript": {
-                "srcUrl": "https://cdp-video-tst.s3.amazonaws.com/cdp.local/video/12/6efd8a36f86774e6ca088923b77a1e29.txt",
-                "text": "",
-                "md5": "6efd8a36f86774e6ca088923b77a1e29"
-            },
-            "srt": {
-                "srcUrl": "https://cdp-video-tst.s3.amazonaws.com/cdp.local/video/12/be0948bd9ed9e20a55df874d3c7d6f7b.srt",
-                "md5": "be0948bd9ed9e20a55df874d3c7d6f7b"
-            },
-            "language": {
-                "language_code": "en",
-                "text_direction": "ltr",
-                "display_name": "English",
-                "locale": "en",
-                "native_name": "English"
-            },
-            "source": [
-                {
-                    "streamUrl": [
-                        {
-                            "site": "youtube",
-                            "url": "https://youtu.be/OTVE5iPMKLg"
-                        }
-                    ],
-                    "duration": null,
-                    "filetype": "mp4",
-                    "burnedInCaptions": "false",
-                    "size": {
-                        "width": "1920",
-                        "bitrate": "15346707",
-                        "filesize": "174902588",
-                        "height": "1080"
-                    },
-                    "stream": {},
-                    "downloadUrl": "https://cdp-video-tst.s3.amazonaws.com/cdp.local/video/12/fc6ce5972a59935b31515578acd37695.mp4",
-                    "md5": "fc6ce5972a59935b31515578acd37695"
-                }
-            ],
-            "categories": [],
-            "title": "Coffee is Great!",
-            "desc": "I love coffee yes I do, I love coffee how bout you?"
+          "streamUrl": [
+            {
+              "site": "youtube",
+              "url": "https://youtu.be/OTVE5iPMKLg"
+            }
+          ],
+          "duration": null,
+          "filetype": "mp4",
+          "burnedInCaptions": "false",
+          "size": {
+            "width": "1920",
+            "bitrate": "15346707",
+            "filesize": "174902588",
+            "height": "1080"
+          },
+          "stream": {},
+          "downloadUrl":
+            "https://cdp-video-tst.s3.amazonaws.com/cdp.local/video/12/fc6ce5972a59935b31515578acd37695.mp4",
+          "md5": "fc6ce5972a59935b31515578acd37695"
         }
-    ],
-    "thumbnail": {
-        "small": {
-            "orientation": "landscape",
-            "width": "384",
-            "url": "http://cdp.local/wp-content/uploads/2018/02/picard.gif",
-            "height": "288"
-        },
-        "medium": null,
-        "large": null,
-        "full": {
-            "orientation": "landscape",
-            "width": "384",
-            "url": "http://cdp.local/wp-content/uploads/2018/02/picard.gif",
-            "height": "288"
-        }
+      ],
+      "categories": [],
+      "title": "Coffee is Great!",
+      "desc": "I love coffee yes I do, I love coffee how bout you?"
     }
+  ],
+  "thumbnail": {
+    "small": {
+      "orientation": "landscape",
+      "width": "384",
+      "url": "http://cdp.local/wp-content/uploads/2018/02/picard.gif",
+      "height": "288"
+    },
+    "medium": null,
+    "large": null,
+    "full": {
+      "orientation": "landscape",
+      "width": "384",
+      "url": "http://cdp.local/wp-content/uploads/2018/02/picard.gif",
+      "height": "288"
+    }
+  }
 }
 ```
 
@@ -329,78 +340,73 @@ GET /v1/post/cdp.local_17
 
 ```json
 {
-    "_id": "AWLZj5ZMln4rDxbHa5IA",
-    "post_id": 17,
-    "type": "post",
-    "site": "cdp.local",
-    "owner": "Content Delivery Platform",
-    "published": "2018-02-05T22:22:44+00:00",
-    "modified": "2018-04-18T16:26:15+00:00",
-    "author": {
-        "id": 1,
-        "name": "thebenstreit"
+  "_id": "AWLZj5ZMln4rDxbHa5IA",
+  "post_id": 17,
+  "type": "post",
+  "site": "cdp.local",
+  "owner": "Content Delivery Platform",
+  "published": "2018-02-05T22:22:44+00:00",
+  "modified": "2018-04-18T16:26:15+00:00",
+  "author": {
+    "id": 1,
+    "name": "thebenstreit"
+  },
+  "link": "http://cdp.local/2018/02/05/the-state-of-affairs/",
+  "title": "The State of Affairs",
+  "slug": "the-state-of-affairs",
+  "content": "<p>Is grave.</p>\n",
+  "excerpt": "",
+  "language": {
+    "_id": "AWKNa7G1dOZTaU7CiFIq",
+    "language_code": "en",
+    "display_name": "English",
+    "native_name": "English",
+    "locale": "en",
+    "text_direction": "ltr"
+  },
+  "languages": [],
+  "thumbnail": {
+    "small": {
+      "height": 200,
+      "width": 300,
+      "url":
+        "http://cdp.local/wp-content/uploads/2018/02/tyler_photo-300x200.jpg",
+      "orientation": "landscape"
     },
-    "link": "http://cdp.local/2018/02/05/the-state-of-affairs/",
-    "title": "The State of Affairs",
-    "slug": "the-state-of-affairs",
-    "content": "<p>Is grave.</p>\n",
-    "excerpt": "",
-    "language": {
-        "_id": "AWKNa7G1dOZTaU7CiFIq",
-        "language_code": "en",
-        "display_name": "English",
-        "native_name": "English",
-        "locale": "en",
-        "text_direction": "ltr"
+    "medium": {
+      "height": 512,
+      "width": 768,
+      "url":
+        "http://cdp.local/wp-content/uploads/2018/02/tyler_photo-768x512.jpg",
+      "orientation": "landscape"
     },
-    "languages": [],
-    "thumbnail": {
-        "small": {
-            "height": 200,
-            "width": 300,
-            "url": "http://cdp.local/wp-content/uploads/2018/02/tyler_photo-300x200.jpg",
-            "orientation": "landscape"
-        },
-        "medium": {
-            "height": 512,
-            "width": 768,
-            "url": "http://cdp.local/wp-content/uploads/2018/02/tyler_photo-768x512.jpg",
-            "orientation": "landscape"
-        },
-        "large": {
-            "url": "http://cdp.local/wp-content/uploads/2018/02/tyler_photo.jpg",
-            "height": 1440,
-            "width": 2160,
-            "orientation": "landscape"
-        },
-        "full": {
-            "url": "http://cdp.local/wp-content/uploads/2018/02/tyler_photo.jpg",
-            "height": 1440,
-            "width": 2160,
-            "orientation": "landscape"
-        }
+    "large": {
+      "url": "http://cdp.local/wp-content/uploads/2018/02/tyler_photo.jpg",
+      "height": 1440,
+      "width": 2160,
+      "orientation": "landscape"
     },
-    "comment_count": 0,
-    "tags": [
-        "another tag",
-        "test",
-        "category 2",
-        "subcat 1",
-        "another tag"
-    ],
-    "categories": [
-        {
-            "name": "About America",
-            "id": "AWKr-4EuPjd8uXvEbbw0"
-        }
-    ]
+    "full": {
+      "url": "http://cdp.local/wp-content/uploads/2018/02/tyler_photo.jpg",
+      "height": 1440,
+      "width": 2160,
+      "orientation": "landscape"
+    }
+  },
+  "comment_count": 0,
+  "tags": ["another tag", "test", "category 2", "subcat 1", "another tag"],
+  "categories": [
+    {
+      "name": "About America",
+      "id": "AWKr-4EuPjd8uXvEbbw0"
+    }
+  ]
 }
 ```
 
 ### `/v1/course`
 
 TODO
-
 
 ### `/v1/language`
 
@@ -413,6 +419,7 @@ GET /v1/language
 ```
 
 #### Response
+
 ```JSON
 [
     {
@@ -453,6 +460,7 @@ GET /v1/taxonomy?tree
 ```
 
 #### Response
+
 ```JSON
 [
     {
@@ -520,6 +528,7 @@ GET /v1/owner
 ```
 
 #### Response
+
 ```JSON
 [
     {
