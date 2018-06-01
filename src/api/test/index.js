@@ -1,15 +1,16 @@
 import { Router } from 'express';
-import fs from 'fs';
 import vimeo from '../../services/vimeo';
 import tempFiles from '../../services/tempfiles';
 
 const router = new Router();
 
-// eslint-disable-next-line no-unused-vars
-router.get( '/', ( req, res ) => {
+router.get( '/', async ( req, res ) => {
   const url = vimeo.getAuthUrl( req.query.callback );
-  // res.json( url );
   res.redirect( url );
+} );
+
+router.get( '/video', async ( req, res ) => {
+  res.json( await vimeo.getVideo( req.query.videoId ) );
 } );
 
 router.get( '/callback', async ( req, res ) => {
@@ -29,6 +30,25 @@ router.get( '/callback', async ( req, res ) => {
     console.log( JSON.stringify( { tokens, hash } ) );
     res.redirect( redirect );
   } else res.json( tokens );
+} );
+
+// eslint-disable-next-line no-unused-vars
+router.post( '/', async ( req, res, next ) => {
+  if ( !req.files || !req.files.length < 1 || !req.files.video ) {
+    return res.json( { error: 1, message: 'No video file provided.' } );
+  }
+  if ( !req.headers.token ) {
+    return res.json( { error: 1, message: 'No token provided.' } );
+  }
+  const token = req.headers.token; // eslint-disable-line prefer-destructuring
+  console.log( token );
+  const tempFile = tempFiles.createTempFile( req.requestId );
+  req.files.video.mv( tempFile.name, async ( err ) => {
+    if ( err ) return next( err );
+    const result = await vimeo.uploadVideo( tempFile.name, token );
+    if ( !res.headersSent ) res.json( result );
+    next();
+  } );
 } );
 
 export default router;

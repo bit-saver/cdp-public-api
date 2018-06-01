@@ -2,17 +2,16 @@ import { Vimeo } from 'vimeo';
 import fs from 'fs';
 
 const vimeoCreds = JSON.parse( fs.readFileSync( `${process.cwd()}/vimeo.json` ) );
+const client = new Vimeo( vimeoCreds.client_id, vimeoCreds.client_secret );
 
 const getAuthUrl = ( state = '' ) => {
-  const scopes = 'public private';
-  const client = new Vimeo( vimeoCreds.client_id, vimeoCreds.client_secret );
+  const scopes = 'public private upload';
   const url = client.buildAuthorizationEndpoint( vimeoCreds.redirect_uri, scopes, state );
   return url;
 };
 
 const getTokenFromCode = code =>
   new Promise( ( resolve, reject ) => {
-    const client = new Vimeo( vimeoCreds.client_id, vimeoCreds.client_secret );
     console.log( code );
     // `redirect_uri` must be provided, and must match your configured URI.
     client.accessToken( code, vimeoCreds.redirect_uri, ( err, response ) => {
@@ -44,7 +43,62 @@ const getTokenFromCode = code =>
     } );
   } );
 
+const uploadVideo = ( videoFile, token ) =>
+  new Promise( ( resolve, reject ) => {
+    client.setAccessToken( token );
+    const parameters = {
+      name: 'Test Video',
+      description: 'Test Video Description',
+      'privacy.download': true
+    };
+    client.upload(
+      videoFile,
+      parameters,
+      ( uri ) => {
+        console.log( 'File upload completed. Your Vimeo URI is:', uri );
+        const videoId = uri.replace( '/videos/' );
+        resolve( { uri, videoId } );
+      },
+      ( bytesUploaded, bytesTotal ) => {
+        // eslint-disable-next-line no-mixed-operators
+        const percentage = ( bytesUploaded / bytesTotal * 100 ).toFixed( 2 );
+        console.log( bytesUploaded, bytesTotal, `${percentage}%` );
+      },
+      ( error ) => {
+        console.error( `Failed because: ${error}`, error );
+        reject( new Error( error ) );
+      }
+    );
+  } );
+
+const getVideo = videoId =>
+  new Promise( ( resolve, reject ) => {
+    client.request(
+      {
+        path: `/videos/${videoId}`
+      },
+      ( error, body, status, headers ) => {
+        if ( error ) {
+          console.log( 'error' );
+          console.log( error );
+          reject( new Error( error ) );
+        } else {
+          console.log( 'body' );
+          console.log( body );
+          resolve( body );
+        }
+
+        console.log( 'status code' );
+        console.log( status );
+        console.log( 'headers' );
+        console.log( headers );
+      }
+    );
+  } );
+
 export default {
   getAuthUrl,
-  getTokenFromCode
+  getTokenFromCode,
+  uploadVideo,
+  getVideo
 };
