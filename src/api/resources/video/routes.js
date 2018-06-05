@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import controller from './controller';
+import vimeoRoutes from './controllers/vimeo';
 import VideoModel from './model';
 import { validate } from '../../../middleware/validateSchema';
 import { transferCtrl, deleteCtrl, asyncTransferCtrl } from '../../../middleware/transfer';
@@ -9,6 +10,9 @@ import asyncResponse from '../../../middleware/asyncResponse';
 const router = new Router();
 
 router.param( 'uuid', controller.setRequestDoc );
+
+// Route: /v1/vimeo
+router.use( '/vimeo', vimeoRoutes );
 
 // Route: /v1/video
 router
