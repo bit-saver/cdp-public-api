@@ -11,7 +11,7 @@ exports.config = {
   /**
    * Array of application names.
    */
-  app_name: ['CDP_API'],
+  app_name: [process.env.NEW_RELIC_APP_NAME],
   logging: {
     /**
      * Level at which to log. 'trace' is most useful to New Relic when diagnosing

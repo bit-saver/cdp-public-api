@@ -1,4 +1,5 @@
 require( 'dotenv' ).config();
+require( 'newrelic' );
 
 import http from 'http';
 import app from './server';
