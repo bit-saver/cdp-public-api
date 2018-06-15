@@ -63,9 +63,15 @@ CF_STREAM_ASYNC=true
 CF_STREAM_EMAIL=
 CF_STREAM_KEY=
 CF_STREAM_ZONE=
+CF_MAX_SIZE=1024
 
 JWT_SUBJECT=
 JWT_SECRET_KEY=
+
+ALLOW_REGISTER=false
+VIMEO_CLIENT_ID=
+VIMEO_CLIENT_SECRET=
+VIMEO_CALLBACK=
 ```
 
 **Important**: If you are connecting to AWS Elasticsearch, set the environment field to `production`. By default, the environment is set to `development`.
