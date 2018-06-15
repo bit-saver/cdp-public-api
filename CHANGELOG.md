@@ -1,6 +1,14 @@
 # Change Log
 ##### All notable changes to this project will be documented in this file.
 
+
+## [1.0.1](https://github.com/IIP-Design/cdp-public-api/tree/1.0.1) (2018-06-15)
+
+**Features:**
+
+- Fix early exit on promise rejections
+- Add New Relic to API
+
 ## [1.0.0](https://github.com/IIP-Design/cdp-public-api/tree/1.0.0) (2018-05-29)
 
 **Features:**

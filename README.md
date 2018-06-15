@@ -66,6 +66,10 @@ CF_STREAM_ZONE=
 
 JWT_SUBJECT=
 JWT_SECRET_KEY=
+
+NEW_RELIC_LICENSE_KEY=
+NEW_RELIC_APP_NAME=
+NEW_RELIC_LOG=stdout
 ```
 
 **Important**: If you are connecting to AWS Elasticsearch, set the environment field to `production`. By default, the environment is set to `development`.
