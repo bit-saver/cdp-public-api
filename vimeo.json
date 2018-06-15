@@ -1,5 +1,0 @@
-{
-  "client_id": "62bcd7b98f50ef88895a636199e41c05d3bfd58a",
-  "client_secret": "XPIEESzJXiny67KCVmZzwl+IdpxAeGqJRdT8OTkwHKO5y0292eXvgdLpBAvrB8tq/FNumOlrQyv3GY7gbWR+7cnor0XjHLCZ2z0HHHop/5ZUCG1BuglJocFEVJWvopBF",
-  "redirect_uri": "http://localhost:8080/v1/vimeo/callback"
-}

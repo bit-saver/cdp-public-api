@@ -3,6 +3,7 @@ import cloudflare from '../services/cloudflare';
 import Download from '../api/modules/download';
 import * as utils from '../api/modules/utils';
 import { exec as mediainfo } from 'mediainfo-parser';
+import vimeo from '../services/vimeo';
 
 const downloadAsset = async ( url, requestId ) => {
   const download = await Download( url, requestId );
@@ -26,22 +27,27 @@ const uploadAsset = async ( reqBody, download ) => {
   return result;
 };
 
-const uploadStream = async ( download ) => {
+const uploadVimeo = async ( download, token, props = {} ) => {
+  const result = await vimeo.upload( download.filePath, token, props );
+  return result;
+};
+
+const uploadCloudflare = async ( download ) => {
   const result = await cloudflare.upload( download.filePath );
   return result;
 };
 
 /**
- * Same as uploadStream but always resolves instead of rejecting due to errors.
+ * Same as uploadCloudflare but always resolves instead of rejecting due to errors.
  * Errors are reported in console.
  *
  * @param download
  * @param asset
  * @returns {Promise<any>}
  */
-const uploadStreamAsync = ( download, asset ) => {
+const uploadCloudflareAsync = ( download, asset ) => {
   console.log(
-    'uploadStreamAsync download and asset',
+    'uploadCloudflareAsync download and asset',
     '\r\n',
     JSON.stringify( download, null, 2 ),
     JSON.stringify( asset, null, 2 )
@@ -104,11 +110,25 @@ const updateAsset = ( model, asset, result, md5 ) => {
   } );
 };
 
-const deleteAssets = ( assets ) => {
+const deleteAssets = ( assets, req ) => {
   if ( !assets || assets.length < 1 ) return;
   assets.forEach( ( asset ) => {
     if ( asset.url ) aws.remove( asset );
-    if ( asset.stream && asset.stream.uid ) cloudflare.remove( asset.stream.uid );
+    if (
+      asset.stream &&
+      asset.stream.uid &&
+      ( !asset.stream.site || asset.stream.site === 'cloudflare' )
+    ) {
+      cloudflare.remove( asset.stream.uid );
+    }
+    if (
+      req.headers.vimeo_token &&
+      asset.stream &&
+      asset.stream.uid &&
+      asset.stream.site === 'vimeo'
+    ) {
+      vimeo.remove( asset.stream.uid, req.headers.vimeo_token );
+    }
   } );
 };
 
@@ -136,9 +156,10 @@ const isTypeAllowed = async ( url ) => {
  *
  * @param model
  * @param asset
+ * @param req
  * @returns {Promise<any>}
  */
-const transferAsset = ( model, asset ) => {
+const transferAsset = ( model, asset, req ) => {
   if ( asset.downloadUrl ) {
     return new Promise( async ( resolve, reject ) => {
       let download = null;
@@ -172,22 +193,35 @@ const transferAsset = ( model, asset ) => {
         const uploads = [];
         uploads.push( uploadAsset( model.body, download ) );
         if ( download.props.contentType.startsWith( 'video' ) ) {
+          // Check for Vimeo token to use for Vimeo upload
+          if ( req.headers.vimeo_token ) {
+            const unit = model.getUnit( asset.unitIndex );
+            const props = {
+              name: unit.title || null,
+              description: unit.desc || null
+            };
+            uploads.push( uploadVimeo( download, req.headers.vimeo_token, props ) );
+          }
+          // Check size for Cloudflare upload
           const size = await getVideoProperties( download ).catch( ( err ) => {
             uploads.push( Promise.resolve( err ) );
           } );
           if ( size ) {
-            const maxSize = ( process.env.CF_MAX_SIZE || 1024 ) * 1024 * 1024;
-            const fileSize = size.size.filesize;
-            if ( fileSize < maxSize ) {
-              // Test the env variable for true or if not set, assume true
-              if ( /^true/.test( process.env.CF_STREAM_ASYNC || 'true' ) ) {
-                model.putAsyncTransfer( uploadStreamAsync( download, {
-                  ...asset,
-                  md5: download.props.md5
-                } ) ); // eslint-disable-line max-len
-              } else uploads.push( uploadStream( download ) );
-            } else {
-              console.log( `Upload too large for cloudflare: maxSize ${maxSize} fileSize ${fileSize}` );
+            // Do not upload to Cloudflare if we uploaded to Vimeo
+            if ( !req.headers.vimeo_token ) {
+              const maxSize = ( process.env.CF_MAX_SIZE || 1024 ) * 1024 * 1024;
+              const fileSize = size.size.filesize;
+              if ( fileSize < maxSize ) {
+                // Test the env variable for true or if not set, assume true
+                if ( /^true/.test( process.env.CF_STREAM_ASYNC || 'true' ) ) {
+                  model.putAsyncTransfer( uploadCloudflareAsync( download, {
+                    ...asset,
+                    md5: download.props.md5
+                  } ) ); // eslint-disable-line max-len
+                } else uploads.push( uploadCloudflare( download ) );
+              } else {
+                console.log( `Upload too large for cloudflare: maxSize ${maxSize} fileSize ${fileSize}` );
+              }
             }
             uploads.push( Promise.resolve( size ) );
           }
@@ -242,7 +276,7 @@ export const transferCtrl = Model => async ( req, res, next ) => {
   }
 
   reqAssets.forEach( ( asset ) => {
-    transfers.push( transferAsset( model, asset ) );
+    transfers.push( transferAsset( model, asset, req ) );
   } );
 
   // Once all promises resolve, pass request onto ES controller
@@ -254,7 +288,7 @@ export const transferCtrl = Model => async ( req, res, next ) => {
       } );
       if ( !hasError ) {
         const s3FilesToDelete = model.getFilesToRemove();
-        if ( s3FilesToDelete.length ) deleteAssets( s3FilesToDelete );
+        if ( s3FilesToDelete.length ) deleteAssets( s3FilesToDelete, req );
         console.log( 'TRANSFER CTRL NEXT', req.requestId );
         next();
       } else {
@@ -326,6 +360,6 @@ export const deleteCtrl = Model => async ( req, res, next ) => {
     .filter( asset => asset.downloadUrl || asset.stream )
     .map( asset => ( { url: asset.downloadUrl, stream: asset.stream } ) );
 
-  deleteAssets( urlsToRemove );
+  deleteAssets( urlsToRemove, req );
   next();
 };

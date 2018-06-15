@@ -1,41 +1,34 @@
 import { Vimeo } from 'vimeo';
 import fs from 'fs';
 
-const vimeoCreds = JSON.parse( fs.readFileSync( `${process.cwd()}/vimeo.json` ) );
-const client = new Vimeo( vimeoCreds.client_id, vimeoCreds.client_secret );
+const vimeoCreds = {
+  client_id: process.env.VIMEO_CLIENT_ID || '',
+  client_secret: process.env.VIMEO_CLIENT_SECRET || '',
+  callback: process.env.VIMEO_CALLBACK || ''
+};
 
 const getAuthUrl = ( state = '' ) => {
-  const scopes = 'public private upload';
-  const url = client.buildAuthorizationEndpoint( vimeoCreds.redirect_uri, scopes, state );
+  const client = new Vimeo( vimeoCreds.client_id, vimeoCreds.client_secret );
+  const scopes = 'public private upload delete';
+  const url = client.buildAuthorizationEndpoint( vimeoCreds.callback, scopes, state );
   return url;
 };
 
 const getTokenFromCode = code =>
   new Promise( ( resolve, reject ) => {
-    console.log( code );
+    const client = new Vimeo( vimeoCreds.client_id, vimeoCreds.client_secret );
     // `redirect_uri` must be provided, and must match your configured URI.
-    client.accessToken( code, vimeoCreds.redirect_uri, ( err, response ) => {
+    client.accessToken( code, vimeoCreds.callback, ( err, response ) => {
       if ( err ) {
-        console.log( err );
+        console.error( err );
         return reject( err );
       }
 
       if ( response.access_token ) {
-        // At this state the code has been successfully exchanged for an
-        // access token
-        client.setAccessToken( response.access_token );
-
-        // Other useful information is included alongside the access token,
-        // which you can dump out to see, or visit our API documentation.
-        //
-        // We include the final scopes granted to the token. This is
-        // important because the user, or API, might revoke scopes during
-        // the authentication process.
-        // const scopes = response.scope;
-
-        // We also include the full user response of the newly
-        // authenticated user.
-        // const user = response.user;
+        const scopeArgs = response.scope.split( ' ' );
+        if ( scopeArgs.indexOf( 'upload' ) < 0 ) {
+          return reject( new Error( 'Upload permission was not granted, but is required for this app.' ) );
+        }
         console.log( JSON.stringify( response, null, 2 ) );
         return resolve( response );
       }
@@ -43,51 +36,85 @@ const getTokenFromCode = code =>
     } );
   } );
 
-const uploadVideo = ( videoFile, token ) =>
+const getVideo = ( videoId, token ) =>
   new Promise( ( resolve, reject ) => {
+    const client = new Vimeo( vimeoCreds.client_id, vimeoCreds.client_secret );
+    if ( token ) client.setAccessToken( token );
+    client.request(
+      {
+        path: `/videos/${videoId}`
+      },
+      ( error, body ) => {
+        if ( error ) {
+          console.error( error );
+          reject( new Error( error ) );
+        } else {
+          resolve( body );
+        }
+      }
+    );
+  } );
+
+const upload = ( videoFile, token, props = {} ) =>
+  new Promise( ( resolve, reject ) => {
+    const client = new Vimeo( vimeoCreds.client_id, vimeoCreds.client_secret );
     client.setAccessToken( token );
+    let progress = null;
     const parameters = {
-      name: 'Test Video',
-      description: 'Test Video Description',
+      name: props.name || null,
+      description: props.description || null,
       'privacy.download': true
     };
     client.upload(
       videoFile,
       parameters,
       ( uri ) => {
-        console.log( 'File upload completed. Your Vimeo URI is:', uri );
         const videoId = uri.replace( '/videos/', '' );
-        resolve( { uri, videoId } );
+        const result = {
+          url: `https://player.vimeo.com/video/${videoId}`,
+          link: `https://vimeo.com${uri}`,
+          thumbnail: null,
+          uid: videoId,
+          site: 'vimeo'
+        };
+        console.log( 'Vimeo upload complete. Result: ', result );
+        resolve( { stream: result } );
       },
       ( bytesUploaded, bytesTotal ) => {
         // eslint-disable-next-line no-mixed-operators
-        const percentage = ( bytesUploaded / bytesTotal * 100 ).toFixed( 2 );
-        console.log( bytesUploaded, bytesTotal, `${percentage}%` );
+        const percentage = bytesUploaded / bytesTotal * 100;
+        if ( progress === null || progress.toFixed( 0 ) !== percentage.toFixed( 0 ) ) {
+          progress = percentage;
+          console.log(
+            `Uploading to Vimeo${parameters.name ? ` [${parameters.name}]` : ''}: `,
+            `${percentage.toFixed( 0 )}%`
+          );
+        }
       },
       ( error ) => {
-        console.error( `Failed because: ${error}`, error );
+        console.error( 'Vimeo upload failed', error );
         reject( new Error( error ) );
       }
     );
   } );
 
-const getVideo = ( videoId, token ) =>
+const remove = ( videoId, token ) =>
   new Promise( ( resolve, reject ) => {
+    const client = new Vimeo( vimeoCreds.client_id, vimeoCreds.client_secret );
     if ( token ) client.setAccessToken( token );
     client.request(
       {
+        method: 'DELETE',
         path: `/videos/${videoId}`
       },
-      ( error, body, status ) => {
+      ( error, body ) => {
         if ( error ) {
-          console.log( 'error', error );
+          console.error( 'Vimeo remove error', error );
           reject( new Error( error ) );
         } else {
-          console.log( 'body', body );
+          console.log( 'Vimeo removed', videoId );
           resolve( body );
         }
-
-        console.log( 'status code', status );
       }
     );
   } );
@@ -95,6 +122,7 @@ const getVideo = ( videoId, token ) =>
 export default {
   getAuthUrl,
   getTokenFromCode,
-  uploadVideo,
-  getVideo
+  getVideo,
+  upload,
+  remove
 };
