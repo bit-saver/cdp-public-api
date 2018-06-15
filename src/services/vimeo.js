@@ -1,5 +1,4 @@
 import { Vimeo } from 'vimeo';
-import fs from 'fs';
 
 const vimeoCreds = {
   client_id: process.env.VIMEO_CLIENT_ID || '',
@@ -7,6 +6,13 @@ const vimeoCreds = {
   callback: process.env.VIMEO_CALLBACK || ''
 };
 
+/**
+ * Creates a Vimeo authorization URL containing the provided state (if any).
+ * Uses upload and delete scope.
+ *
+ * @param state
+ * @returns {*}
+ */
 const getAuthUrl = ( state = '' ) => {
   const client = new Vimeo( vimeoCreds.client_id, vimeoCreds.client_secret );
   const scopes = 'public private upload delete';
@@ -14,6 +20,12 @@ const getAuthUrl = ( state = '' ) => {
   return url;
 };
 
+/**
+ * Retrieves the token data from Vimeo using the provided authorization code.
+ *
+ * @param code
+ * @returns {Promise<any>}
+ */
 const getTokenFromCode = code =>
   new Promise( ( resolve, reject ) => {
     const client = new Vimeo( vimeoCreds.client_id, vimeoCreds.client_secret );
@@ -36,6 +48,13 @@ const getTokenFromCode = code =>
     } );
   } );
 
+/**
+ * Gets video data for a particular video ID from the Vimeo API.
+ *
+ * @param videoId
+ * @param token
+ * @returns {Promise<any>}
+ */
 const getVideo = ( videoId, token ) =>
   new Promise( ( resolve, reject ) => {
     const client = new Vimeo( vimeoCreds.client_id, vimeoCreds.client_secret );
@@ -55,6 +74,15 @@ const getVideo = ( videoId, token ) =>
     );
   } );
 
+/**
+ * Uploads the specified videoFile to Vimeo using the provided token.
+ * Props may optionally include a 'name' and 'description' that will get applied to the video.
+ *
+ * @param videoFile
+ * @param token
+ * @param props
+ * @returns {Promise<any>}
+ */
 const upload = ( videoFile, token, props = {} ) =>
   new Promise( ( resolve, reject ) => {
     const client = new Vimeo( vimeoCreds.client_id, vimeoCreds.client_secret );
@@ -98,6 +126,13 @@ const upload = ( videoFile, token, props = {} ) =>
     );
   } );
 
+/**
+ * Deletes a video from Vimeo if it exists in the account for the given access token.
+ *
+ * @param videoId
+ * @param token
+ * @returns {Promise<any>}
+ */
 const remove = ( videoId, token ) =>
   new Promise( ( resolve, reject ) => {
     const client = new Vimeo( vimeoCreds.client_id, vimeoCreds.client_secret );
