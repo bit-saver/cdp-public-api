@@ -72,6 +72,10 @@ ALLOW_REGISTER=false
 VIMEO_CLIENT_ID=
 VIMEO_CLIENT_SECRET=
 VIMEO_CALLBACK=
+
+NEW_RELIC_LICENSE_KEY=
+NEW_RELIC_APP_NAME=
+NEW_RELIC_LOG=stdout
 ```
 
 **Important**: If you are connecting to AWS Elasticsearch, set the environment field to `production`. By default, the environment is set to `development`.
