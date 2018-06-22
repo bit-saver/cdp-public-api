@@ -11,7 +11,7 @@ import languageRoutes from './resources/language/routes';
 import taxonomyRoutes from './resources/taxonomy/routes';
 import ownerRoutes from './resources/owner/routes';
 import zipRoutes from './tasks/zip/routes';
-import authRoutes, { requireAuth } from './modules/controllers/authentication';
+import authRoutes, { requireAuth } from './modules/auth';
 
 const router = new Router();
 
@@ -23,7 +23,7 @@ router.use( /\/(admin|video|post|course|language|taxonomy|owner)\/?.*$/i, requir
 router.use( '/search', searchRoutes );
 router.use( '/zip', zipRoutes );
 
-// router.use( '/auth', authRoutes );
+router.use( '/auth', authRoutes );
 
 // admin routes
 router.use( '/admin', adminRoutes );

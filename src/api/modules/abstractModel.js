@@ -63,6 +63,19 @@ class AbstractModel {
     this.asyncTransfers.push( transfer );
   }
 
+  /**
+   * Retrieves a particular language unit at the provided index.
+   *
+   * @param index
+   * @returns {*}
+   */
+  getUnit( index ) {
+    if ( !this.body ) return {};
+    const units = this.getUnits( this.body );
+    if ( units.length > index ) return units[index];
+    return {};
+  }
+
   async prepareDocumentForPatch( req ) {
     const docFromES = await this.findDocumentByQuery( req.body ).then( parser.parseUniqueDocExists() ); // eslint-disable-line max-len
     if ( docFromES ) {

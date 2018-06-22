@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import jwt from 'jsonwebtoken';
+import vimeoRoutes from './vimeo';
 
 const router = new Router();
 
@@ -24,11 +25,9 @@ export const requireAuth = ( req, res, next ) => {
 };
 
 /**
- * Generates a JWT
- * @param {string} subject
- * @returns {string}
+ * Generates a JWT using the Subject set in the env vars
  */
-router.route( '/register' ).post( ( req, res, next ) => {
+const registerCtrl = ( req, res, next ) => {
   if ( !req.body.user ) {
     return res.status( 422 ).send( { error: 'You must provide a username' } );
   }
@@ -36,6 +35,12 @@ router.route( '/register' ).post( ( req, res, next ) => {
   jwt.sign( { user: req.body.user }, process.env.JWT_SECRET_KEY, ( err, token ) => {
     res.json( { token } );
   } );
-} );
+};
+
+if ( /^true/.test( process.env.ALLOW_REGISTER || 'false' ) ) {
+  router.route( '/register' ).post( registerCtrl );
+}
+
+router.use( '/vimeo', vimeoRoutes );
 
 export default router;

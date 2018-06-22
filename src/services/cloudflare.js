@@ -90,6 +90,7 @@ const upload = filePath =>
                     ret.uid = uid;
                     ret.url = body.result.preview;
                     ret.thumbnail = body.result.thumbnail;
+                    ret.site = 'cloudflare';
                     return resolve( { stream: ret } );
                   } else if ( status.state === 'queued' ) {
                     if ( !state ) {

@@ -35,7 +35,8 @@
     "newrelic": "^4.1.2",
     "request": "^2.85.0",
     "tmp": "0.0.33",
-    "tus-js-client": "^1.5.1"
+    "tus-js-client": "^1.5.1",
+    "vimeo": "^2.0.2"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
