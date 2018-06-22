@@ -15,9 +15,12 @@ export const requireAuth = ( req, res, next ) => {
     const token = req.headers.authorization.split( ' ' )[1];
     jwt.verify( token, process.env.JWT_SECRET_KEY, ( err, decoded ) => {
       if ( err || decoded.user !== process.env.JWT_SUBJECT ) {
-        next( { error: 1, message: 'Invalid user credentials' } );
+        return next( { error: 1, message: 'Invalid user credentials' } );
       }
     } );
+    if ( !req.headers.vimeo_token ) {
+      req.headers.vimeo_token = process.env.VIMEO_TOKEN || null;
+    }
     return next();
   }
 
@@ -37,7 +40,7 @@ const registerCtrl = ( req, res, next ) => {
   } );
 };
 
-if ( /^true/.test( process.env.ALLOW_REGISTER || 'false' ) ) {
+if ( /^true/.test( process.env.ALLOW_AUTH_REGISTER || 'false' ) ) {
   router.route( '/register' ).post( registerCtrl );
 }
 

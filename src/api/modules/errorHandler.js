@@ -1,4 +1,5 @@
 import Request from 'request';
+import { callback } from './utils';
 
 const apiErrorHandler = ( err, req, res, next ) => {
   // Send different messages based on error type (err.status)
@@ -17,7 +18,17 @@ const apiErrorHandler = ( err, req, res, next ) => {
         },
         headers: { 'User-Agent': 'API' }
       },
-      () => {}
+      ( error, response, body ) => {
+        if ( err ) {
+          req.callbackSent = true;
+          console.error( 'callback error error', '\r\n', JSON.stringify( err, null, 2 ) );
+        } else if ( !body && req.callbackAttempt < 3 ) {
+          console.warn( 'callback error response body is undefined' );
+        } else {
+          req.callbackSent = true;
+          console.log( 'callback error response body', JSON.stringify( body, null, 2 ) );
+        }
+      }
     );
     req.callbackSent = true;
   }
