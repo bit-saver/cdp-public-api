@@ -47,22 +47,19 @@ const postSchema = {
       items: { type: 'string' }
     },
     custom_taxonomies: {
-      type: 'array',
-      default: [],
-      items: {
-        type: 'object',
-        properties: {
-          name: { type: 'string' },
-          terms: {
-            type: 'array',
-            default: [],
-            items: {
-              type: 'object',
-              properties: {
-                id: { type: 'integer' },
-                name: { type: 'string' }
-              }
-            }
+      type: 'object',
+      default: {},
+      patternProperties: {
+        '.*': {
+          type: 'array',
+          default: [],
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer' },
+              name: { type: 'string' }
+            },
+            required: ['name']
           }
         }
       }
