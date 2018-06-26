@@ -11,20 +11,15 @@ const router = new Router();
  * @param {*} next
  */
 export const requireAuth = ( req, res, next ) => {
-  console.log( 'requireAuth controller called' );
   if ( req.headers && typeof req.headers.authorization !== 'undefined' ) {
     const token = req.headers.authorization.split( ' ' )[1];
     jwt.verify( token, process.env.JWT_SECRET_KEY, ( err, decoded ) => {
       if ( err || decoded.user !== process.env.JWT_SUBJECT ) {
         return next( { error: 1, message: 'Invalid user credentials' } );
       }
-      console.log( 'authorization successful' );
     } );
     if ( !req.headers.vimeo_token ) {
-      console.log( 'setting vimeo token on header', process.env.VIMEO_TOKEN );
       req.headers.vimeo_token = process.env.VIMEO_TOKEN || null;
-    } else {
-      console.log( 'vimeo token was present on header', req.headers.vimeo_token );
     }
     return next();
   }

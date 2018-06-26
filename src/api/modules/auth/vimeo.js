@@ -30,7 +30,7 @@ router.get( '/callback', async ( req, res, next ) => {
 } );
 
 router.route( '/:vimeoId' ).get( async ( req, res ) => {
-  res.json( await vimeo.getVideo( req.params.vimeoId, req.headers.access_token ) );
+  res.json( await vimeo.getVideo( req.params.vimeoId, req.headers.vimeo_token ) );
 } );
 
 export default router;

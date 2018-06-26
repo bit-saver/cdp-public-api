@@ -201,8 +201,6 @@ const transferAsset = ( model, asset, req ) => {
               description: unit.desc || null
             };
             uploads.push( uploadVimeo( download, req.headers.vimeo_token, props ) );
-          } else {
-            console.log( 'vimeo token not on header' );
           }
           // Check size for Cloudflare upload
           const size = await getVideoProperties( download ).catch( ( err ) => {
