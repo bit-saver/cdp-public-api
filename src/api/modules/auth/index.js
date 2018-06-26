@@ -20,6 +20,7 @@ export const requireAuth = ( req, res, next ) => {
     } );
     if ( !req.headers.vimeo_token ) {
       req.headers.vimeo_token = process.env.VIMEO_TOKEN || null;
+      console.log( 'set vimeo token on header', process.env.VIMEO_TOKEN );
     }
     return next();
   }
