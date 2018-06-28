@@ -72,7 +72,14 @@ const getVideoProperties = download =>
         console.error( 'MEDIAINFO ENCOUNTERED AN ERROR', '\r\n', err );
         return resolve( null );
       }
-      if ( result.media.track.length < 1 ) return reject( new Error( 'No media info.' ) );
+      if ( !result.media || !result.media.track || result.media.track.length < 1 ) {
+        console.error(
+          'MediaInfo could not obtain properties...',
+          '\r\n',
+          JSON.stringify( result.media, null, 2 )
+        );
+        return reject( new Error( 'No media info.' ) );
+      }
       const props = {
         size: {
           width: null,
