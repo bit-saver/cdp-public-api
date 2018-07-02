@@ -81,13 +81,13 @@ export const tagCategories = async ( req, res, next ) => {
           .findDocByTerm( model, tag )
           .then( ( result ) => {
             if ( !result ) {
-              tags.push( tag );
+              if ( !tags.includes( tag ) ) tags.push( tag );
             } else if ( !terms.includes( result._id ) ) {
               terms.push( result._id );
             }
           } )
           .catch( () => {
-            tags.push( tag );
+            if ( !tags.includes( tag ) ) tags.push( tag );
           } );
         return {};
       } ),
