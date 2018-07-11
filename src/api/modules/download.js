@@ -32,20 +32,35 @@ export default function download( url, requestId ) {
     const props = {};
 
     const tmpObj = tempFiles.createTempFile( requestId );
+    let cur = 0;
+    let len = 0;
+    let total = 0;
+    let lastUpdate = 0;
     Request.get( {
       url: encodeURI( url ),
       gzip: true,
       headers: { 'User-Agent': 'API' }
     } )
+      .on( 'data', ( chunk ) => {
+        const now = new Date();
+        cur += chunk.length;
+        if ( now - lastUpdate > 10 * 1000 ) {
+          // eslint-disable-next-line no-mixed-operators
+          console.log( `Downloading ${props.basename}: ${( 100.0 * cur / len ).toFixed( 0 )}% ${(
+            cur / 1048576
+          ).toFixed( 2 )} mb. Total size: ${total.toFixed( 2 )} mb` );
+          lastUpdate = now;
+        }
+      } )
       .on( 'error', error => reject( error ) )
       .on( 'response', ( response ) => {
+        len = parseInt( response.headers['content-length'], 10 );
+        total = len / 1048576; // 1048576 - bytes in  1Megabyte
+
         props.basename = args.path.split( '/' ).pop();
-
         props.contentType = response.headers['content-type'];
-
         // Getting the extension this way could be erroneous
         props.ext = Path.extname( props.basename );
-
         // Cross check ext against known extensions for this content type
         const typeExts = Mime.extensions[props.contentType];
         if ( typeExts ) {
