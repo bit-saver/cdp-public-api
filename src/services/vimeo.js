@@ -93,6 +93,7 @@ const upload = ( videoFile, token, props = {} ) =>
       description: props.description || null,
       'privacy.download': true
     };
+    let lastUpdate = null;
     client.upload(
       videoFile,
       parameters,
@@ -109,6 +110,9 @@ const upload = ( videoFile, token, props = {} ) =>
         resolve( { stream: result } );
       },
       ( bytesUploaded, bytesTotal ) => {
+        const now = new Date();
+        if ( lastUpdate && now - lastUpdate < 5 * 1000 ) return;
+        lastUpdate = now;
         // eslint-disable-next-line no-mixed-operators
         const percentage = bytesUploaded / bytesTotal * 100;
         if ( progress === null || progress.toFixed( 0 ) !== percentage.toFixed( 0 ) ) {

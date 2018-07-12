@@ -59,7 +59,37 @@ const uploadCloudflareAsync = ( download, asset ) => {
         resolve( { asset, ...result } );
       } )
       .catch( ( err ) => {
-        console.error( 'uploadStreamSync error', err );
+        console.error( 'uploadCloudflareAsync error', err );
+        resolve( null );
+      } );
+  } );
+};
+
+/**
+ * Same as uploadVimeo but always resolves instead of rejecting due to errors.
+ * Errors are reported in console.
+ *
+ * @param download
+ * @param asset
+ * @param token
+ * @param props
+ * @returns {Promise<any>}
+ */
+const uploadVimeoAsync = ( download, asset, token, props = {} ) => {
+  console.log(
+    'uploadVimeoAsync download and asset',
+    '\r\n',
+    JSON.stringify( download, null, 2 ),
+    JSON.stringify( asset, null, 2 )
+  );
+  return new Promise( ( resolve ) => {
+    vimeo
+      .upload( download.filePath, token, props )
+      .then( ( result ) => {
+        resolve( { asset, ...result } );
+      } )
+      .catch( ( err ) => {
+        console.error( 'uploadVimeoAsync error', err );
         resolve( null );
       } );
   } );
@@ -207,7 +237,12 @@ const transferAsset = ( model, asset, req ) => {
               name: unit.title || null,
               description: unit.desc || null
             };
-            uploads.push( uploadVimeo( download, req.headers.vimeo_token, props ) );
+            model.putAsyncTransfer( uploadVimeoAsync(
+              download,
+              { ...asset, md5: download.props.md5 },
+              req.headers.vimeo_token,
+              props
+            ) );
           }
           // Check size for Cloudflare upload
           const size = await getVideoProperties( download ).catch( ( err ) => {
@@ -337,7 +372,7 @@ export const asyncTransferCtrl = Model => async ( req, res, next ) => {
       if ( result ) {
         // Let's nullify unitIndex and srcIndex so that putAsset has to rely on md5
         // in case this document changed.
-        console.log( 'putting CF asset result', '\r\n', JSON.stringify( result, null, 2 ) );
+        console.log( 'putting stream asset result', '\r\n', JSON.stringify( result, null, 2 ) );
         model.putAsset( {
           ...result.asset,
           stream: result.stream,
