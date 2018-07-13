@@ -46,6 +46,7 @@ class Video extends AbstractModel {
           md5: src.md5 || null,
           size: src.size || null,
           duration: src.duration || null,
+          video_quality: src.video_quality || null,
           unitIndex,
           srcIndex,
           assetType: 'source'
@@ -110,6 +111,7 @@ class Video extends AbstractModel {
           source.md5 = asset.md5;
           source.size = asset.size;
           source.duration = asset.duration;
+          source.video_quality = asset.video_quality;
         } else {
           console.log( 'attempting to update asset via hash' );
           this.body.unit.forEach( ( unit ) => {
