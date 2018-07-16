@@ -46,7 +46,7 @@ const postSchema = {
       default: [],
       items: { type: 'string' }
     },
-    custom_taxonomies: {
+    site_taxonomies: {
       type: 'object',
       default: {},
       patternProperties: {
