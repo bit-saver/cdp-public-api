@@ -153,6 +153,22 @@ class Video extends AbstractModel {
   getUnits( json ) {
     return json.unit;
   }
+
+  /**
+   * Returns the title of the requested video in English or first available.
+   *
+   * @returns string
+   */
+  getTitle() {
+    let title = null;
+    this.body.unit.forEach( ( unit ) => {
+      if ( !title || ( unit.language && unit.language.language_code === 'en' ) ) {
+        [title] = unit;
+      }
+    } );
+    if ( !title ) return `Post #${this.body.post_id}`;
+    return title;
+  }
 }
 
 export default Video;

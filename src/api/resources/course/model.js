@@ -81,6 +81,10 @@ class Course extends AbstractModel {
   getUnits( json ) {
     return [json];
   }
+
+  getTitle() {
+    return this.body.title;
+  }
 }
 
 export default Course;

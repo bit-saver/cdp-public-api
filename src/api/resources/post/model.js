@@ -81,6 +81,10 @@ class Post extends AbstractModel {
   getUnits( json ) {
     return [json];
   }
+
+  getTitle() {
+    return this.body.title;
+  }
 }
 
 export default Post;

@@ -59,6 +59,12 @@ class AbstractModel {
     return this.requestId;
   }
 
+  // need to disable eslint rule for this method
+  // eslint-disable-next-line class-methods-use-this
+  getTitle() {
+    throw new Error( 'Method not implemented: getTitle' );
+  }
+
   putAsyncTransfer( transfer ) {
     this.asyncTransfers.push( transfer );
   }
