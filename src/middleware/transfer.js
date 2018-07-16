@@ -299,12 +299,12 @@ export const transferCtrl = Model => async ( req, res, next ) => {
         console.log( 'TRANSFER CTRL NEXT', req.requestId );
         next();
       } else {
-        console.log( 'TRANSFER CTRL error', hasError );
+        console.log( `TRANSFER CTRL error [${req.body.title || 'Unknown Title'}]`, hasError );
         next( hasError );
       }
     } )
     .catch( ( err ) => {
-      console.log( 'TRANSFER CTRL error', err );
+      console.log( `TRANSFER CTRL all error [${req.body.title || 'Unknown Title'}]`, err );
       next( err );
     } );
 };

@@ -85,7 +85,10 @@ const upload = ( {
       .then( ( data ) => {
         resolve( { filename: key, ...data } );
       } )
-      .catch( err => reject( err ) );
+      .catch( ( err ) => {
+        console.error( `S3 upload error [${key}]`, err );
+        return reject( err );
+      } );
     body.on( 'error', ( err ) => {
       console.error( 'Caught S3 upload file read error' );
       manager.abort();
