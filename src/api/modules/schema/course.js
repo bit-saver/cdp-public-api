@@ -44,6 +44,24 @@ const courseSchema = {
       type: 'array',
       default: [],
       items: { type: 'string' }
+    },
+    site_taxonomies: {
+      type: 'object',
+      default: {},
+      patternProperties: {
+        '.*': {
+          type: 'array',
+          default: [],
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer' },
+              name: { type: 'string' }
+            },
+            required: ['name']
+          }
+        }
+      }
     }
   }
 };

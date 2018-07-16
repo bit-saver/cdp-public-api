@@ -59,8 +59,9 @@ export const translateCategories = Model => async ( req, res, next ) => {
 };
 
 /**
- * Searches for terms that match the provided tags in the provided locale.
- * If a term is matched, the tag is removed and the term ID is added to the categories property.
+ * Searches for terms that match the provided tags and categories in the provided locale.
+ * If a term is matched, the term ID is added to the categories property.
+ * If a category is not matched, the category is added to the tags property.
  *
  * @param req
  * @param res
@@ -70,29 +71,49 @@ export const translateCategories = Model => async ( req, res, next ) => {
 export const tagCategories = async ( req, res, next ) => {
   const model = new TaxonomyModel();
   const body = req.body; // eslint-disable-line prefer-destructuring
-  if ( 'tags' in body !== true ) return next();
+  if ( 'site_taxonomies' in body !== true ) return next();
   const tags = [];
   const terms = body.categories || [];
-  body.tags = body.tags.map( kw => kw.toLowerCase() );
-  await body.tags.reduce(
-    async ( accumP, tag ) =>
-      accumP.then( async () => {
+  if ( 'tags' in body.site_taxonomies ) {
+    await body.site_taxonomies.tags.reduce( async ( accumP, tagData ) => {
+      const tag = tagData.name.toLowerCase();
+      return accumP.then( async () => {
         await controllers
           .findDocByTerm( model, tag )
           .then( ( result ) => {
-            if ( !result ) {
-              if ( !tags.includes( tag ) ) tags.push( tag );
-            } else if ( !terms.includes( result._id ) ) {
+            if ( !terms.includes( result._id ) ) {
               terms.push( result._id );
             }
           } )
-          .catch( () => {
-            if ( !tags.includes( tag ) ) tags.push( tag );
-          } );
+          .catch( () => {} );
         return {};
-      } ),
-    Promise.resolve( {} )
-  );
+      } );
+    }, Promise.resolve( {} ) );
+  }
+
+  if ( 'categories' in body.site_taxonomies ) {
+    await body.site_taxonomies.categories.reduce(
+      async ( accumP, catData ) =>
+        accumP.then( async () => {
+          await controllers
+            .findDocByTerm( model, catData.name )
+            .then( ( result ) => {
+              const tag = catData.name.toLowerCase();
+              if ( !result ) {
+                if ( !tags.includes( tag ) ) tags.push( tag );
+              } else if ( !terms.includes( result._id ) ) {
+                terms.push( result._id );
+              }
+            } )
+            .catch( () => {
+              const tag = catData.name.toLowerCase();
+              if ( !tags.includes( tag ) ) tags.push( tag );
+            } );
+          return {};
+        } ),
+      Promise.resolve( {} )
+    );
+  }
   body.tags = tags;
   body.categories = terms;
   next();
@@ -100,8 +121,9 @@ export const tagCategories = async ( req, res, next ) => {
 
 /**
  * Searches for taxonomy terms that have a match for a tag in the synonymMapping
- * property. If a match is found, the tag is removed and the term ID is added to the
- * categories property.
+ * property. If a match is found, the term ID is added to the
+ * categories property. If it is a category, the term is not matched, AND the category
+ * is not in the root tags property then it is added to the tags property.
  *
  * @param req
  * @param res
@@ -111,18 +133,18 @@ export const tagCategories = async ( req, res, next ) => {
 export const synonymCategories = async ( req, res, next ) => {
   const model = new TaxonomyModel();
   const body = req.body; // eslint-disable-line prefer-destructuring
-  if ( 'tags' in body !== true ) return next();
+  if ( 'site_taxonomies' in body !== true ) return next();
   const tags = [];
   const terms = body.categories || [];
-  await body.tags.reduce(
-    async ( accumP, tag ) =>
-      accumP.then( async () => {
+
+  if ( 'tags' in body.site_taxonomies ) {
+    await body.site_taxonomies.tags.reduce( async ( accumP, tagData ) => {
+      const tag = tagData.name.toLowerCase();
+      return accumP.then( async () => {
         const results = await model
           .findDocsBySynonym( tag )
           .then( parser.parseFindResult() )
-          .catch( () => {
-            tags.push( tag );
-          } );
+          .catch( () => {} );
         if ( results ) {
           const result = results[0];
           if ( !terms.includes( result._id ) ) {
@@ -131,9 +153,30 @@ export const synonymCategories = async ( req, res, next ) => {
           }
         }
         return {};
-      } ),
-    Promise.resolve( {} )
-  );
+      } );
+    }, Promise.resolve( {} ) );
+  }
+  if ( 'categories' in body.site_taxonomies ) {
+    await body.site_taxonomies.categories.reduce( async ( accumP, catData ) => {
+      const cat = catData.name.toLowerCase();
+      return accumP.then( async () => {
+        const results = await model
+          .findDocsBySynonym( cat )
+          .then( parser.parseFindResult() )
+          .catch( () => {
+            if ( !tags.includes( cat ) ) tags.push( cat );
+          } );
+        if ( results ) {
+          const result = results[0];
+          if ( !terms.includes( result._id ) ) {
+            console.log( `matched ${cat} with ${result.language.en}` );
+            terms.push( result._id );
+          }
+        }
+        return {};
+      } );
+    }, Promise.resolve( {} ) );
+  }
   body.tags = tags;
   body.categories = terms;
   next();
