@@ -159,9 +159,10 @@ class Video extends AbstractModel {
    *
    * @returns string
    */
-  getTitle() {
+  // eslint-disable-next-line class-methods-use-this
+  getTitle( json ) {
     let title = null;
-    this.body.unit.forEach( ( unit ) => {
+    json.unit.forEach( ( unit ) => {
       if ( !title || ( unit.language && unit.language.language_code === 'en' ) ) {
         [title] = unit;
       }

@@ -41,6 +41,9 @@ export default function download( url, requestId ) {
       gzip: true,
       headers: { 'User-Agent': 'API' }
     } )
+      .on( 'timeout', () => {
+        console.log( 'download timeout' );
+      } )
       .on( 'data', ( chunk ) => {
         const now = new Date();
         cur += chunk.length;

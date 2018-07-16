@@ -82,8 +82,9 @@ class Post extends AbstractModel {
     return [json];
   }
 
-  getTitle() {
-    return this.body.title;
+  // eslint-disable-next-line class-methods-use-this
+  getTitle( json ) {
+    return json.title;
   }
 }
 
