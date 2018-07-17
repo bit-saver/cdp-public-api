@@ -1,6 +1,7 @@
 import tmp from 'tmp';
 
 tmp.setGracefulCleanup();
+if ( process.env.TMP_DIR && process.env.TMP_DIR !== '' ) tmp.tmpdir = process.env.TMP_DIR;
 
 const files = [];
 

@@ -52,6 +52,7 @@ Add a `.env` file to the root of your project and set the following environment 
 ```text
 NODE_ENV=development
 PORT=8080
+TMP_DIR=
 
 AWS_HOST=localhost:9200
 AWS_REGION=us-east-1
