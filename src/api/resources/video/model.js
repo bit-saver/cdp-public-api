@@ -163,7 +163,7 @@ class Video extends AbstractModel {
   getTitle( json ) {
     let title = null;
     if ( 'unit' in json && json.unit.length > 0 ) {
-      json.unit.forEach( ( unit ) => {
+      json.unit.forEach( ( unit, index ) => {
         if ( !title || ( unit.language && unit.language.language_code === 'en' ) ) {
           [title] = unit;
         }
