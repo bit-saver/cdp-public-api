@@ -162,13 +162,13 @@ class Video extends AbstractModel {
   // eslint-disable-next-line class-methods-use-this
   getTitle( json ) {
     let title = null;
-    if ( 'unit' in json && json.unit.length > 0 ) {
-      json.unit.forEach( ( unit, index ) => {
+    try {
+      json.unit.forEach( ( unit ) => {
         if ( !title || ( unit.language && unit.language.language_code === 'en' ) ) {
           [title] = unit;
         }
       } );
-    }
+    } catch ( e ) {} // eslint-disable-line no-empty
     if ( !title ) return `Post #${this.body.post_id}`;
     return title;
   }
