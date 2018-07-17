@@ -82,9 +82,8 @@ class Course extends AbstractModel {
     return [json];
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  getTitle( json ) {
-    return json.title;
+  getTitle() {
+    return this.body.title;
   }
 }
 

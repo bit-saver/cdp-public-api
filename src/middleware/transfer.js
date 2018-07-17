@@ -286,6 +286,8 @@ export const transferCtrl = Model => async ( req, res, next ) => {
     transfers.push( transferAsset( model, asset, req ) );
   } );
 
+  console.log( 'request title', model.getTitle( req.body ) );
+
   // Once all promises resolve, pass request onto ES controller
   await Promise.all( transfers )
     .then( ( results ) => {
@@ -299,12 +301,12 @@ export const transferCtrl = Model => async ( req, res, next ) => {
         console.log( 'TRANSFER CTRL NEXT', req.requestId );
         next();
       } else {
-        console.log( `TRANSFER CTRL error [${model.getTitle( req.body )}]`, hasError );
+        console.log( `TRANSFER CTRL error [${model.getTitle()}]`, hasError );
         next( hasError );
       }
     } )
     .catch( ( err ) => {
-      console.log( `TRANSFER CTRL all error [${model.getTitle( req.body )}]`, err );
+      console.log( `TRANSFER CTRL all error [${model.getTitle()}]`, err );
       next( err );
     } );
 };
