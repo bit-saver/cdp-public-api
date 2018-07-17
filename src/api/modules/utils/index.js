@@ -55,7 +55,7 @@ export const callback = ( req, data ) => {
         }
       );
     } else {
-      console.log( 'callback not sent due to errors only requested: ', req.headers.callback_errors );
+      console.log( 'callback not sent due to errors only requested' );
     }
     return true;
   }

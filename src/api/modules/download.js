@@ -42,7 +42,7 @@ export default function download( url, requestId ) {
       headers: { 'User-Agent': 'API' }
     } )
       .on( 'timeout', () => {
-        console.log( 'download timeout' );
+        console.error( `Timeout downloading [${url}]` );
       } )
       .on( 'data', ( chunk ) => {
         const now = new Date();
@@ -55,7 +55,14 @@ export default function download( url, requestId ) {
           lastUpdate = now;
         }
       } )
-      .on( 'error', error => reject( error ) )
+      .on( 'error', ( error ) => {
+        console.error( `Error downloading [${url}]`, error );
+        return reject( error );
+      } )
+      .on( 'uncaughtException', ( error ) => {
+        console.error( `Unhandled error downloading [${url}]`, error );
+        return reject( error );
+      } )
       .on( 'response', ( response ) => {
         len = parseInt( response.headers['content-length'], 10 );
         total = len / 1048576; // 1048576 - bytes in  1Megabyte
