@@ -286,8 +286,6 @@ export const transferCtrl = Model => async ( req, res, next ) => {
     transfers.push( transferAsset( model, asset, req ) );
   } );
 
-  console.log( 'request title', model.getTitle( req.body ) );
-
   // Once all promises resolve, pass request onto ES controller
   await Promise.all( transfers )
     .then( ( results ) => {
