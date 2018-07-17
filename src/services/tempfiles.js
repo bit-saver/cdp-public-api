@@ -1,7 +1,6 @@
 import tmp from 'tmp';
 
 tmp.setGracefulCleanup();
-if ( process.env.TMP_DIR && process.env.TMP_DIR !== '' ) tmp.tmpdir = process.env.TMP_DIR;
 
 const files = [];
 
@@ -9,7 +8,7 @@ const createTempFile = ( requestId ) => {
   if ( !requestId ) {
     throw new Error( 'Request ID not provided when attempting to create new temp file.' );
   }
-  const tmpObj = tmp.fileSync( undefined );
+  const tmpObj = tmp.fileSync( { dir: process.env.TMP_DIR } );
   // try to find an existing reference to this request ID
   const reqFiles = files.find( val => val.requestId === requestId );
   // if there isn't one, create it
