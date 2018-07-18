@@ -1,6 +1,22 @@
 # Change Log
 ##### All notable changes to this project will be documented in this file.
 
+## [1.0.2](https://github.com/IIP-Design/cdp-public-api/tree/1.0.2) (2018-07-18)
+
+**Features:**
+
+- Updated custom\_taxonomies to be site\_taxonomies.
+- Updated the API to include the "web" or "broadcast" video property.
+- Fixed tags getting duplicated after multiple updates.
+- Added Vimeo implementation.
+- Uncommented /auth routes so we can use /auth/vimeo.
+- Added env var for enabling/disabling /auth/register: ALLOW_REGISTER=false/true
+- Added vimeo auth routes (/auth/vimeo and /auth/vimeo/callback).
+- Added getUnit function to abstractModel.
+- Added vimeo service for making various requests against the vimeo API using the Vimeo SDK.
+- Added site property to the stream object (to specify vimeo or cloudflare).
+- Added logic and functionality to the transfer ctrl that uploads to vimeo instead of cloudflare when an access token is on the header.
+- Added delete functionality when a vimeo token is on the header and a post is deleted.
 
 ## [1.0.1](https://github.com/IIP-Design/cdp-public-api/tree/1.0.1) (2018-06-15)
 
