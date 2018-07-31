@@ -72,7 +72,12 @@ const getVideoProperties = download =>
         console.error( 'MEDIAINFO ENCOUNTERED AN ERROR', '\r\n', err );
         return resolve( null );
       }
-      if ( !result.media || !result.media.track || result.media.track.length < 1 ) {
+      if (
+        !result.media ||
+        !result.media.track ||
+        result.media.track.length < 1 ||
+        typeof result.media.track.forEach !== 'function'
+      ) {
         console.error(
           'MediaInfo could not obtain properties...',
           '\r\n',
