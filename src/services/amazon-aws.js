@@ -18,13 +18,12 @@ const s3 = new AWS.S3();
  * @param key
  * @returns {Promise<any>}
  */
-const checkExists = ( bucket = process.env.AWS_S3_BUCKET, key ) =>
-  new Promise( ( resolve ) => {
-    s3.headObject( { Bucket: bucket, Key: key }, ( err ) => {
-      if ( err && err.code === 'NotFound' ) resolve( false );
-      else resolve( true );
-    } );
+const checkExists = ( bucket = process.env.AWS_S3_BUCKET, key ) => new Promise( ( resolve ) => {
+  s3.headObject( { Bucket: bucket, Key: key }, ( err ) => {
+    if ( err && err.code === 'NotFound' ) resolve( false );
+    else resolve( true );
   } );
+} );
 
 /**
  * Upload a file to Amazon S3.
@@ -44,57 +43,56 @@ const upload = ( {
   filePath = null,
   bucket = process.env.AWS_S3_BUCKET,
   replace = true
-} ) =>
-  new Promise( async ( resolve, reject ) => {
-    let key = `${title}${ext}`;
-    let exists = await checkExists( bucket, key );
+} ) => new Promise( async ( resolve, reject ) => {
+  let key = `${title}${ext}`;
+  let exists = await checkExists( bucket, key );
 
-    if ( !replace ) {
-      let index = 0;
-      while ( exists ) {
-        index += 1;
-        if ( index > 5 ) {
-          reject( new Error( `S3 Upload: File already exists (attempted: ${index})` ) );
-        }
-        key = `${title}-${index}${ext}`;
-        exists = await checkExists( bucket, key ); // eslint-disable-line no-await-in-loop
+  if ( !replace ) {
+    let index = 0;
+    while ( exists ) {
+      index += 1;
+      if ( index > 5 ) {
+        reject( new Error( `S3 Upload: File already exists (attempted: ${index})` ) );
       }
+      key = `${title}-${index}${ext}`;
+      exists = await checkExists( bucket, key ); // eslint-disable-line no-await-in-loop
     }
+  }
 
-    const body = fs.createReadStream( filePath );
+  const body = fs.createReadStream( filePath );
 
-    const params = {
-      Bucket: bucket,
-      Key: key,
-      Body: body,
-      ACL: 'private' // TODO: Switch back to 'public-read' for any kind of non-test based functionality
-    };
+  const params = {
+    Bucket: bucket,
+    Key: key,
+    Body: body,
+    ACL: 'private' // TODO: Switch back to 'public-read' for any kind of non-test based functionality
+  };
 
-    let completed = null;
-    const manager = s3.upload( params );
-    manager
-      .on( 'httpUploadProgress', ( progress ) => {
-        // eslint-disable-next-line no-mixed-operators
-        const percent = ( progress.loaded / progress.total * 100 ).toFixed( 0 );
-        if ( !completed || percent !== completed ) {
-          completed = percent;
-          console.info( `Uploading to S3 - ${key}: ${percent}%` );
-        }
-      } )
-      .promise()
-      .then( ( data ) => {
-        resolve( { filename: key, ...data } );
-      } )
-      .catch( ( err ) => {
-        console.error( `S3 upload error [${key}]`, err );
-        return reject( err );
-      } );
-    body.on( 'error', ( err ) => {
-      console.error( 'Caught S3 upload file read error' );
-      manager.abort();
-      reject( err );
+  let completed = null;
+  const manager = s3.upload( params );
+  manager
+    .on( 'httpUploadProgress', ( progress ) => {
+      // eslint-disable-next-line no-mixed-operators
+      const percent = ( progress.loaded / progress.total * 100 ).toFixed( 0 );
+      if ( !completed || percent !== completed ) {
+        completed = percent;
+        console.info( `Uploading to S3 - ${key}: ${percent}%` );
+      }
+    } )
+    .promise()
+    .then( ( data ) => {
+      resolve( { filename: key, ...data } );
+    } )
+    .catch( ( err ) => {
+      console.error( `S3 upload error [${key}]`, err );
+      return reject( err );
     } );
+  body.on( 'error', ( err ) => {
+    console.error( 'Caught S3 upload file read error' );
+    manager.abort();
+    reject( err );
   } );
+} );
 
 /**
  * Remove (delete) an object from S3 given a path OR full URL.

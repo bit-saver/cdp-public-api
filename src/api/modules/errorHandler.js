@@ -1,5 +1,4 @@
 import Request from 'request';
-import { callback } from './utils';
 
 const apiErrorHandler = ( err, req, res, next ) => {
   // Send different messages based on error type (err.status)

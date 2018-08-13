@@ -53,15 +53,14 @@ const bulkImport = model => async ( req, res, next ) => {
     // The return from the result is a promise containing the accumulated
     // terms array which is accessed thanks to await
     const seen = await rows.reduce(
-      async ( ownersP, cols ) =>
-        ownersP.then( async ( owners ) => {
-          console.log( 'Processing:', JSON.stringify( cols, null, 2 ) );
-          const created = createOwner( { name: cols[0] } );
-          if ( created ) {
-            return { ...owners, [cols[0].toLowerCase()]: created };
-          }
-          return owners;
-        } ),
+      async ( ownersP, cols ) => ownersP.then( async ( owners ) => {
+        console.log( 'Processing:', JSON.stringify( cols, null, 2 ) );
+        const created = createOwner( { name: cols[0] } );
+        if ( created ) {
+          return { ...owners, [cols[0].toLowerCase()]: created };
+        }
+        return owners;
+      } ),
       Promise.resolve( {} )
     );
     return seen;

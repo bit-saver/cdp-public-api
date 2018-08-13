@@ -44,39 +44,38 @@ const bulkImport = model => async ( req, res, next ) => {
     // The return from the result is a promise containing the accumulated
     // terms array which is accessed thanks to await
     const seen = await rows.reduce(
-      async ( langsP, cols ) =>
-        langsP.then( async ( langs ) => {
-          console.log( 'Processing:', JSON.stringify( cols, null, 2 ) );
-          const lang = {
-            language_code: cols[head.code] || null,
-            display_name: cols[head.display] || null,
-            native_name: cols[head.native] || null
-          };
-          if ( !lang.language_code || !lang.display_name || !lang.native_name ) {
-            console.error( 'Invalid lang', JSON.stringify( lang, null, 2 ) );
-            return langs;
-          }
-
-          lang.language_code = lang.language_code.toLowerCase();
-
-          if ( head.locale && cols[head.locale] ) lang.locale = cols[head.locale].toLowerCase();
-          else lang.locale = lang.language_code;
-
-          if ( head.text_direction && cols[head.text_direction] ) {
-            lang.text_direction = cols[head.text_direction].toLowerCase();
-          } else lang.text_direction = 'ltr';
-
-          if ( lang.locale && lang.display_name && lang.native_name ) {
-            // If this is a duplicate from a previous row, skip
-            if ( langs[lang.locale] ) return langs;
-
-            const language = await createLanguage( lang );
-            return { ...langs, [language.locale]: language };
-          }
+      async ( langsP, cols ) => langsP.then( async ( langs ) => {
+        console.log( 'Processing:', JSON.stringify( cols, null, 2 ) );
+        const lang = {
+          language_code: cols[head.code] || null,
+          display_name: cols[head.display] || null,
+          native_name: cols[head.native] || null
+        };
+        if ( !lang.language_code || !lang.display_name || !lang.native_name ) {
           console.error( 'Invalid lang', JSON.stringify( lang, null, 2 ) );
-
           return langs;
-        } ),
+        }
+
+        lang.language_code = lang.language_code.toLowerCase();
+
+        if ( head.locale && cols[head.locale] ) lang.locale = cols[head.locale].toLowerCase();
+        else lang.locale = lang.language_code;
+
+        if ( head.text_direction && cols[head.text_direction] ) {
+          lang.text_direction = cols[head.text_direction].toLowerCase();
+        } else lang.text_direction = 'ltr';
+
+        if ( lang.locale && lang.display_name && lang.native_name ) {
+          // If this is a duplicate from a previous row, skip
+          if ( langs[lang.locale] ) return langs;
+
+          const language = await createLanguage( lang );
+          return { ...langs, [language.locale]: language };
+        }
+        console.error( 'Invalid lang', JSON.stringify( lang, null, 2 ) );
+
+        return langs;
+      } ),
       Promise.resolve( {} )
     );
     return seen;

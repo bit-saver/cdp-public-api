@@ -1,5 +1,5 @@
 import client from '../../services/elasticsearch';
-import parser from '../modules/elastic/parser';
+import parser from './elastic/parser';
 
 /**
  * Content Model abstraction ensures that the required methods

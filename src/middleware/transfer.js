@@ -65,49 +65,48 @@ const uploadCloudflareAsync = ( download, asset ) => {
   } );
 };
 
-const getVideoProperties = download =>
-  new Promise( ( resolve, reject ) => {
-    mediainfo( download.filePath, ( err, result ) => {
-      if ( err ) {
-        console.error( 'MEDIAINFO ENCOUNTERED AN ERROR', '\r\n', err );
-        return resolve( null );
-      }
-      if (
-        !result.media ||
+const getVideoProperties = download => new Promise( ( resolve, reject ) => {
+  mediainfo( download.filePath, ( err, result ) => {
+    if ( err ) {
+      console.error( 'MEDIAINFO ENCOUNTERED AN ERROR', '\r\n', err );
+      return resolve( null );
+    }
+    if (
+      !result.media ||
         !result.media.track ||
         result.media.track.length < 1 ||
         typeof result.media.track.forEach !== 'function'
-      ) {
-        console.error(
-          'MediaInfo could not obtain properties...',
-          '\r\n',
-          JSON.stringify( result.media, null, 2 )
-        );
-        return reject( new Error( 'No media info.' ) );
+    ) {
+      console.error(
+        'MediaInfo could not obtain properties...',
+        '\r\n',
+        JSON.stringify( result.media, null, 2 )
+      );
+      return reject( new Error( 'No media info.' ) );
+    }
+    const props = {
+      size: {
+        width: null,
+        height: null,
+        filesize: null,
+        bitrate: null
+      },
+      duration: null
+    };
+    result.media.track.forEach( ( data ) => {
+      if ( data._type === 'General' ) {
+        props.size.filesize = data.filesize;
+        props.size.bitrate = data.overallbitrate;
+        props.duration = data.duration;
+      } else if ( data._type === 'Video' ) {
+        props.size.width = data.width;
+        props.size.height = data.height;
       }
-      const props = {
-        size: {
-          width: null,
-          height: null,
-          filesize: null,
-          bitrate: null
-        },
-        duration: null
-      };
-      result.media.track.forEach( ( data ) => {
-        if ( data._type === 'General' ) {
-          props.size.filesize = data.filesize;
-          props.size.bitrate = data.overallbitrate;
-          props.duration = data.duration;
-        } else if ( data._type === 'Video' ) {
-          props.size.width = data.width;
-          props.size.height = data.height;
-        }
-      } );
-      console.log( 'mediainfo', JSON.stringify( props, null, 2 ) );
-      resolve( props );
     } );
+    console.log( 'mediainfo', JSON.stringify( props, null, 2 ) );
+    resolve( props );
   } );
+} );
 
 const updateAsset = ( model, asset, result, md5 ) => {
   // Modify the original request by:

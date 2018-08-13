@@ -20,25 +20,23 @@ export const indexDocument = model => ( req, res, next ) => {
 };
 
 // PUT v1/[resource]/:uuid
-export const updateDocumentById = model => async ( req, res, next ) =>
-  controllers
-    .updateDocumentById( model, req )
-    .then( ( doc ) => {
-      if ( req.esDoc ) req.esDoc = { ...req.esDoc, ...doc };
-      else req.esDoc = doc;
-      if ( !utils.callback( req, { doc: req.esDoc } ) && !res.headersSent ) {
-        res.status( 201 ).json( req.esDoc );
-      }
-      next();
-    } )
-    .catch( err => next( err ) );
+export const updateDocumentById = model => async ( req, res, next ) => controllers
+  .updateDocumentById( model, req )
+  .then( ( doc ) => {
+    if ( req.esDoc ) req.esDoc = { ...req.esDoc, ...doc };
+    else req.esDoc = doc;
+    if ( !utils.callback( req, { doc: req.esDoc } ) && !res.headersSent ) {
+      res.status( 201 ).json( req.esDoc );
+    }
+    next();
+  } )
+  .catch( err => next( err ) );
 
 // DELETE v1/[resource]/:uuid
-export const deleteDocumentById = model => ( req, res, next ) =>
-  controllers
-    .deleteDocumentById( model, req )
-    .then( doc => res.status( 200 ).json( doc ) )
-    .catch( err => next( err ) );
+export const deleteDocumentById = model => ( req, res, next ) => controllers
+  .deleteDocumentById( model, req )
+  .then( doc => res.status( 200 ).json( doc ) )
+  .catch( err => next( err ) );
 
 // GET v1/[resource]/:uuid
 export const getDocumentById = () => ( req, res, next ) => {

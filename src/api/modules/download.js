@@ -6,14 +6,13 @@ import fs from 'fs';
 import crypto from 'crypto';
 import tempFiles from '../../services/tempfiles';
 
-const md5hash = path =>
-  new Promise( ( resolve, reject ) => {
-    const hash = crypto.createHash( 'md5' );
-    const rs = fs.createReadStream( path );
-    rs.on( 'error', reject );
-    rs.on( 'data', chunk => hash.update( chunk ) );
-    rs.on( 'end', () => resolve( hash.digest( 'hex' ) ) );
-  } );
+const md5hash = path => new Promise( ( resolve, reject ) => {
+  const hash = crypto.createHash( 'md5' );
+  const rs = fs.createReadStream( path );
+  rs.on( 'error', reject );
+  rs.on( 'data', chunk => hash.update( chunk ) );
+  rs.on( 'end', () => resolve( hash.digest( 'hex' ) ) );
+} );
 
 /**
  * Downloads content for the given URL.  Returns an object containing

@@ -25,22 +25,21 @@ export const translateCategories = Model => async ( req, res, next ) => {
   };
 
   // Nested 2
-  const translateUnit = unit =>
-    new Promise( ( resolve ) => {
-      const catPromises = [];
-      unit.categories.forEach( ( cat ) => {
-        catPromises.push( translateCategory( unit, cat.id ) );
-      } );
-      Promise.all( catPromises ).then( ( results ) => {
-        results.forEach( ( result ) => {
-          if ( result.name ) {
-            const cat = unit.categories.find( val => val.id === result.id );
-            if ( cat ) cat.name = result.name;
-          }
-        } );
-        resolve();
-      } );
+  const translateUnit = unit => new Promise( ( resolve ) => {
+    const catPromises = [];
+    unit.categories.forEach( ( cat ) => {
+      catPromises.push( translateCategory( unit, cat.id ) );
     } );
+    Promise.all( catPromises ).then( ( results ) => {
+      results.forEach( ( result ) => {
+        if ( result.name ) {
+          const cat = unit.categories.find( val => val.id === result.id );
+          if ( cat ) cat.name = result.name;
+        }
+      } );
+      resolve();
+    } );
+  } );
 
   const promises = [];
   const units = await model.prepareCategoriesForUpdate( req );
@@ -93,24 +92,23 @@ export const tagCategories = async ( req, res, next ) => {
 
   if ( 'categories' in body.site_taxonomies ) {
     await body.site_taxonomies.categories.reduce(
-      async ( accumP, catData ) =>
-        accumP.then( async () => {
-          await controllers
-            .findDocByTerm( model, catData.name )
-            .then( ( result ) => {
-              const tag = catData.name.toLowerCase();
-              if ( !result ) {
-                if ( !tags.includes( tag ) ) tags.push( tag );
-              } else if ( !terms.includes( result._id ) ) {
-                terms.push( result._id );
-              }
-            } )
-            .catch( () => {
-              const tag = catData.name.toLowerCase();
+      async ( accumP, catData ) => accumP.then( async () => {
+        await controllers
+          .findDocByTerm( model, catData.name )
+          .then( ( result ) => {
+            const tag = catData.name.toLowerCase();
+            if ( !result ) {
               if ( !tags.includes( tag ) ) tags.push( tag );
-            } );
-          return {};
-        } ),
+            } else if ( !terms.includes( result._id ) ) {
+              terms.push( result._id );
+            }
+          } )
+          .catch( () => {
+            const tag = catData.name.toLowerCase();
+            if ( !tags.includes( tag ) ) tags.push( tag );
+          } );
+        return {};
+      } ),
       Promise.resolve( {} )
     );
   }

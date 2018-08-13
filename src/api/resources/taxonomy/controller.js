@@ -6,19 +6,17 @@ import parser from '../../modules/elastic/parser';
 
 const taxModel = new TaxonomyModel();
 
-const findDocByTerm = model => async ( req, res, next ) =>
-  controllers
-    .findDocByTerm( model, req.params.name )
-    .then( term => res.json( term ) )
-    .catch( err => next( err ) );
+const findDocByTerm = model => async ( req, res, next ) => controllers
+  .findDocByTerm( model, req.params.name )
+  .then( term => res.json( term ) )
+  .catch( err => next( err ) );
 
-const translateTermById = model => async ( req, res, next ) =>
-  controllers
-    .translateTermById( model, req.params.id, req.params.locale )
-    .then( ( name ) => {
-      res.json( name );
-    } )
-    .catch( err => next( err ) );
+const translateTermById = model => async ( req, res, next ) => controllers
+  .translateTermById( model, req.params.id, req.params.locale )
+  .then( ( name ) => {
+    res.json( name );
+  } )
+  .catch( err => next( err ) );
 
 /**
  * Create the language object containing the locale:translation pairs of the taxonomy term.
@@ -116,56 +114,55 @@ const bulkImport = model => async ( req, res, next ) => {
     // The return from the result is a promise containing the accumulated
     // terms array which is accessed thanks to await
     const seen = await rows.reduce(
-      async ( termsP, cols ) =>
-        termsP.then( async ( terms ) => {
-          // If this is a skip row, then just return the accumulated terms
-          if ( head.skip && cols[head.skip] ) return { ...terms };
+      async ( termsP, cols ) => termsP.then( async ( terms ) => {
+        // If this is a skip row, then just return the accumulated terms
+        if ( head.skip && cols[head.skip] ) return { ...terms };
 
-          const syns = [];
-          if ( head.synonyms && cols[head.synonyms] ) {
-            // Add synonyms to the synonyms array if they don't already exist
-            cols[head.synonyms]
-              .toLowerCase()
-              .replace( /[\r\n]+/g, '' )
-              .split( ' | ' )
-              .forEach( ( syn ) => {
-                if ( !syns.includes( syn ) ) syns.push( syn );
-              } );
+        const syns = [];
+        if ( head.synonyms && cols[head.synonyms] ) {
+          // Add synonyms to the synonyms array if they don't already exist
+          cols[head.synonyms]
+            .toLowerCase()
+            .replace( /[\r\n]+/g, '' )
+            .split( ' | ' )
+            .forEach( ( syn ) => {
+              if ( !syns.includes( syn ) ) syns.push( syn );
+            } );
+        }
+        let existingTerm = null;
+        let termName = '';
+        if ( cols[head.parent] ) {
+          // This is a primary category
+          termName = cols[head.parent].toLowerCase();
+          if ( terms[termName] ) {
+            existingTerm = terms[termName];
           }
-          let existingTerm = null;
-          let termName = '';
-          if ( cols[head.parent] ) {
-            // This is a primary category
-            termName = cols[head.parent].toLowerCase();
-            if ( terms[termName] ) {
-              existingTerm = terms[termName];
-            }
-            const language = createLanguage(
-              termName,
-              existingTerm,
-              head.translations ? { indices: head.translations, cols } : null
-            );
-            const term = await createUpdateTerm( termName, syns, language, true, existingTerm );
-            parent = term;
-            return { ...terms, [termName]: term };
-          } else if ( cols[head.child] ) {
-            // This is a child category
-            termName = cols[head.child].toLowerCase();
-            if ( terms[termName] ) {
-              existingTerm = terms[termName];
-            }
-            const language = createLanguage(
-              termName,
-              existingTerm,
-              head.translations ? { indices: head.translations, cols } : null
-            );
-            const term = await createUpdateTerm( termName, syns, language, false, existingTerm );
-            const ret = { ...terms };
-            ret[termName] = term;
-            return { ...terms, [termName]: term };
+          const language = createLanguage(
+            termName,
+            existingTerm,
+            head.translations ? { indices: head.translations, cols } : null
+          );
+          const term = await createUpdateTerm( termName, syns, language, true, existingTerm );
+          parent = term;
+          return { ...terms, [termName]: term };
+        } else if ( cols[head.child] ) {
+          // This is a child category
+          termName = cols[head.child].toLowerCase();
+          if ( terms[termName] ) {
+            existingTerm = terms[termName];
           }
-          return { ...terms };
-        } ),
+          const language = createLanguage(
+            termName,
+            existingTerm,
+            head.translations ? { indices: head.translations, cols } : null
+          );
+          const term = await createUpdateTerm( termName, syns, language, false, existingTerm );
+          const ret = { ...terms };
+          ret[termName] = term;
+          return { ...terms, [termName]: term };
+        }
+        return { ...terms };
+      } ),
       Promise.resolve( {} )
     );
     return seen;

@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import vimeo from '../../../services/vimeo';
-import tempFiles from '../../../services/tempfiles';
 
 const router = new Router();
 

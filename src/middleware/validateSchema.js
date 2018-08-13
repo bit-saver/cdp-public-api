@@ -1,5 +1,4 @@
-const compileValidationErrors = errors =>
-  `Validation errors: ${errors.map( error => `${error.dataPath} : ${error.message}` )}`;
+const compileValidationErrors = errors => `Validation errors: ${errors.map( error => `${error.dataPath} : ${error.message}` )}`;
 
 export const validate = ( Model, useDefaults = true ) => async ( req, res, next ) => {
   const result = Model.validateSchema( req.body, useDefaults );

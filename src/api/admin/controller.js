@@ -16,8 +16,8 @@ const getDateStamp = () => {
 
 const _exists = index => client.indices.exists( { index } );
 
-const _create = ( index, mapping = {} ) =>
-  client.indices.create( { index, body: { mappings: mapping } } );
+// eslint-disable-next-line max-len
+const _create = ( index, mapping = {} ) => client.indices.create( { index, body: { mappings: mapping } } );
 
 const _remove = index => client.indices.delete( { index } );
 
@@ -79,10 +79,9 @@ export const updateAlias = ( req, res, next ) => {
     .catch( err => next( err ) );
 };
 
-export const exists = ( req, res, next ) =>
-  _exists( req.body.index )
-    .then( doc => res.status( 200 ).json( doc ) )
-    .catch( err => next( err ) );
+export const exists = ( req, res, next ) => _exists( req.body.index )
+  .then( doc => res.status( 200 ).json( doc ) )
+  .catch( err => next( err ) );
 
 export const create = ( req, res, next ) => {
   _create( req.body.index, req.body.mapping )
@@ -90,10 +89,9 @@ export const create = ( req, res, next ) => {
     .catch( err => next( err ) );
 };
 
-export const remove = ( req, res, next ) =>
-  _remove( req.body.index )
-    .then( doc => res.status( 200 ).json( doc ) )
-    .catch( err => next( err ) );
+export const remove = ( req, res, next ) => _remove( req.body.index )
+  .then( doc => res.status( 200 ).json( doc ) )
+  .catch( err => next( err ) );
 
 /*
   NOTE: Need to explore using the ingest node with and pipelines
