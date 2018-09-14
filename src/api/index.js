@@ -11,6 +11,9 @@ import languageRoutes from './resources/language/routes';
 import taxonomyRoutes from './resources/taxonomy/routes';
 import ownerRoutes from './resources/owner/routes';
 import zipRoutes from './tasks/zip/routes';
+
+// this will be moved to the admin node server when v2 is released
+import utilRoutes from './tasks/util/routes';
 import authRoutes, { requireAuth } from './modules/auth';
 
 const router = new Router();
@@ -22,6 +25,8 @@ router.use( /\/(admin|video|post|course|language|taxonomy|owner)\/?.*$/i, requir
 // public routes -- /v1/search, etc., v1 comes from app.use in index.js
 router.use( '/search', searchRoutes );
 router.use( '/zip', zipRoutes );
+// this will be moved to the admin node server when v2 is released
+router.use( '/util', utilRoutes );
 
 router.use( '/auth', authRoutes );
 
