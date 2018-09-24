@@ -154,33 +154,39 @@ Content-Type: application/json
           "owner": "Content Delivery Platform",
           "comment_count": 0,
           "thumbnail": {
-            "small": {
-              "orientation": "landscape",
-              "width": 300,
-              "url":
-                "http://cdp.local/wp-content/uploads/2018/02/tyler_photo-300x200.jpg",
-              "height": 200
-            },
-            "large": {
-              "orientation": "landscape",
-              "width": 2160,
-              "url":
-                "http://cdp.local/wp-content/uploads/2018/02/tyler_photo.jpg",
-              "height": 1440
-            },
-            "medium": {
-              "orientation": "landscape",
-              "width": 768,
-              "url":
-                "http://cdp.local/wp-content/uploads/2018/02/tyler_photo-768x512.jpg",
-              "height": 512
-            },
-            "full": {
-              "orientation": "landscape",
-              "width": 2160,
-              "url":
-                "http://cdp.local/wp-content/uploads/2018/02/tyler_photo.jpg",
-              "height": 1440
+            "name": "Image Title",
+            "alt": "Image Alt",
+            "caption": "Image caption",
+            "longdesc": "Image description",
+            "sizes": {
+              "small": {
+                "orientation": "landscape",
+                "width": 300,
+                "url":
+                  "http://cdp.local/wp-content/uploads/2018/02/tyler_photo-300x200.jpg",
+                "height": 200
+              },
+              "large": {
+                "orientation": "landscape",
+                "width": 2160,
+                "url":
+                  "http://cdp.local/wp-content/uploads/2018/02/tyler_photo.jpg",
+                "height": 1440
+              },
+              "medium": {
+                "orientation": "landscape",
+                "width": 768,
+                "url":
+                  "http://cdp.local/wp-content/uploads/2018/02/tyler_photo-768x512.jpg",
+                "height": 512
+              },
+              "full": {
+                "orientation": "landscape",
+                "width": 2160,
+                "url":
+                  "http://cdp.local/wp-content/uploads/2018/02/tyler_photo.jpg",
+                "height": 1440
+              }
             }
           },
           "languages": [
@@ -324,19 +330,25 @@ GET /v1/video/cdp.local_12
     }
   ],
   "thumbnail": {
-    "small": {
-      "orientation": "landscape",
-      "width": "384",
-      "url": "http://cdp.local/wp-content/uploads/2018/02/picard.gif",
-      "height": "288"
-    },
-    "medium": null,
-    "large": null,
-    "full": {
-      "orientation": "landscape",
-      "width": "384",
-      "url": "http://cdp.local/wp-content/uploads/2018/02/picard.gif",
-      "height": "288"
+    "name": "Image Title",
+    "alt": "Image Alt",
+    "caption": "Image caption",
+    "longdesc": "Image description",
+    "sizes": {
+      "small": {
+        "orientation": "landscape",
+        "width": "384",
+        "url": "http://cdp.local/wp-content/uploads/2018/02/picard.gif",
+        "height": "288"
+      },
+      "medium": null,
+      "large": null,
+      "full": {
+        "orientation": "landscape",
+        "width": "384",
+        "url": "http://cdp.local/wp-content/uploads/2018/02/picard.gif",
+        "height": "288"
+      }
     }
   }
 }
@@ -380,32 +392,38 @@ GET /v1/post/cdp.local_17
   },
   "languages": [],
   "thumbnail": {
-    "small": {
-      "height": 200,
-      "width": 300,
-      "url":
-        "http://cdp.local/wp-content/uploads/2018/02/tyler_photo-300x200.jpg",
-      "orientation": "landscape"
-    },
-    "medium": {
-      "height": 512,
-      "width": 768,
-      "url":
-        "http://cdp.local/wp-content/uploads/2018/02/tyler_photo-768x512.jpg",
-      "orientation": "landscape"
-    },
-    "large": {
-      "url": "http://cdp.local/wp-content/uploads/2018/02/tyler_photo.jpg",
-      "height": 1440,
-      "width": 2160,
-      "orientation": "landscape"
-    },
-    "full": {
-      "url": "http://cdp.local/wp-content/uploads/2018/02/tyler_photo.jpg",
-      "height": 1440,
-      "width": 2160,
-      "orientation": "landscape"
-    }
+    "name": "Image Title",
+    "alt": "Image Alt",
+    "caption": "Image caption",
+    "longdesc": "Image description",
+    "sizes": {
+      "small": {
+        "height": 200,
+        "width": 300,
+        "url":
+          "http://cdp.local/wp-content/uploads/2018/02/tyler_photo-300x200.jpg",
+        "orientation": "landscape"
+      },
+      "medium": {
+        "height": 512,
+        "width": 768,
+        "url":
+          "http://cdp.local/wp-content/uploads/2018/02/tyler_photo-768x512.jpg",
+        "orientation": "landscape"
+      },
+      "large": {
+        "url": "http://cdp.local/wp-content/uploads/2018/02/tyler_photo.jpg",
+        "height": 1440,
+        "width": 2160,
+        "orientation": "landscape"
+      },
+      "full": {
+        "url": "http://cdp.local/wp-content/uploads/2018/02/tyler_photo.jpg",
+        "height": 1440,
+        "width": 2160,
+        "orientation": "landscape"
+      }
+    }      
   },
   "comment_count": 0,
   "tags": ["another tag", "test", "category 2", "subcat 1", "another tag"],
