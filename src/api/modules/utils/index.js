@@ -42,7 +42,7 @@ export const callback = ( req, data ) => {
         ( err, res, body ) => {
           if ( err ) {
             req.callbackSent = true;
-            console.error( 'callback error', '\r\n', JSON.stringify( err, null, 2 ) );
+            console.error( 'callback error', '\r\n', JSON.stringify( err, null, 2 ), JSON.stringify( body, null, 2 ) );
           } else if ( !body && req.callbackAttempt < 3 ) {
             console.warn( 'callback response body is undefined, retrying...' );
             setTimeout( () => {
