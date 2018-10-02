@@ -1,9 +1,24 @@
 # Change Log
 ##### All notable changes to this project will be documented in this file.
 
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## 1.3.0
+
+**Features Added:**
+
+- Update thumbnail schema to move all sizes into a `sizes` object and add `name`, `alt`, `caption`, and `longdesc` properties.
+- Adds language detection routes
+- Adds linting package and corrects errors
+
+**Changed:**
+
+- Made callback error more verbose
+
 ## [1.2.0](https://github.com/IIP-Design/cdp-public-api/tree/1.2.0) (2018-07-18)
 
-**Features:**
+**Features Added:**
 
 - Updated custom\_taxonomies to be site\_taxonomies.
 - Updated the API to include the "web" or "broadcast" video property.
@@ -20,14 +35,14 @@
 
 ## [1.0.1](https://github.com/IIP-Design/cdp-public-api/tree/1.0.1) (2018-06-15)
 
-**Features:**
+**Features Added:**
 
 - Fix early exit on promise rejections
 - Add New Relic to API
 
 ## [1.0.0](https://github.com/IIP-Design/cdp-public-api/tree/1.0.0) (2018-05-29)
 
-**Features:**
+**Features Added:**
 
 - Delete files from CloudFlare when a video is deleted
 - Update S3 file naming convention
