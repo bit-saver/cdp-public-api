@@ -76,13 +76,13 @@ class Video extends AbstractModel {
       [
         'small', 'medium', 'large', 'full'
       ].forEach( ( size ) => {
-        if ( json.thumbnail[size] ) {
+        if ( json.thumbnail.sizes[size] ) {
           assets.push( {
-            downloadUrl: json.thumbnail[size].url,
-            md5: json.thumbnail[size].md5 || null,
-            width: json.thumbnail[size].width,
-            height: json.thumbnail[size].height,
-            orientation: json.thumbnail[size].orientation,
+            downloadUrl: json.thumbnail.sizes[size].url,
+            md5: json.thumbnail.sizes[size].md5 || null,
+            width: json.thumbnail.sizes[size].width,
+            height: json.thumbnail.sizes[size].height,
+            orientation: json.thumbnail.sizes[size].orientation,
             unitIndex: size,
             srcIndex: -1,
             assetType: 'thumbnail'
@@ -126,7 +126,7 @@ class Video extends AbstractModel {
         }
         break;
       case 'thumbnail': {
-        const source = this.body.thumbnail[asset.unitIndex];
+        const source = this.body.thumbnail.sizes[asset.unitIndex];
         source.url = asset.downloadUrl;
         source.width = asset.width;
         source.height = asset.height;
