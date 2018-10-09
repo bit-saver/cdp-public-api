@@ -72,7 +72,7 @@ class Video extends AbstractModel {
         } );
       }
     } );
-    if ( json.thumbnail ) {
+    if ( json.thumbnail && json.thumbnail.sizes ) {
       [
         'small', 'medium', 'large', 'full'
       ].forEach( ( size ) => {
