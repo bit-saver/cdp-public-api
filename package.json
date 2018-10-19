@@ -23,7 +23,6 @@
     "cors": "^2.8.4",
     "csv-parse": "^2.2.0",
     "cuid": "^2.1.1",
-    "detectlanguage": "^1.2.2",
     "dotenv": "^4.0.0",
     "elasticsearch": "^13.3.1",
     "express": "^4.16.3",
