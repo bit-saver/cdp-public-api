@@ -20,11 +20,12 @@ const middlewareSetup = ( app ) => {
   app.use( compression() );
   app.use( addRequestId );
   app.use( addQueryArgsProperty );
-  app.use( helmet() );
-  app.use( helmet.hsts( {
-    maxAge: 31536000,
-    includeSubDomains: true,
-    preload: true
+  app.use( helmet( {
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true
+    }
   } ) );
   app.use( cors() );
   app.use( fileUpload() );
