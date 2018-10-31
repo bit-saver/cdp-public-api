@@ -4,6 +4,14 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.3.3
+
+**Changed:**
+
+- Dependencies updated.
+- Added max age 1 year and preload to response headers
+- Added check for thumbnail.sizes to video model.
+
 ## 1.3.2
 
 **Security:**
