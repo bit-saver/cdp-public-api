@@ -24,6 +24,7 @@
     "csv-parse": "^2.2.0",
     "cuid": "^2.1.1",
     "dotenv": "^4.0.0",
+    "elastic-apm-node": "^1.14.0",
     "elasticsearch": "^15.1.1",
     "express": "^4.16.3",
     "express-fileupload": "^0.4.0",
