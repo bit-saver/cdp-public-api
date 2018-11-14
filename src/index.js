@@ -1,7 +1,8 @@
-require( 'dotenv' ).config();
+import {} from 'dotenv/config';
+import apm from 'elastic-apm-node/start';
+
 require( 'newrelic' );
 
-import apm from 'elastic-apm-node/start';
 import http from 'http';
 import app from './server';
 
