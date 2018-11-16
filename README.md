@@ -80,6 +80,8 @@ NEW_RELIC_APP_NAME=
 NEW_RELIC_LOG=stdout
 
 ALOW_AUTH_REGISTER=false
+
+OPENNET_IPS=<IP.Range1.Start>:<IP.Range1.End> <IP.Range2.Start>:<IP.Range2.End>
 ```
 
 **Important**: If you are connecting to AWS Elasticsearch, set the environment field to `production`. By default, the environment is set to `development`.
