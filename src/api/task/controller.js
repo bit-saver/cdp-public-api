@@ -1,7 +1,15 @@
 import request from 'request';
 
-export const download = ( req, res, next ) => {
-  res.setHeader( 'content-disposition', `attachment; filename=${req.body.filename}` );
-  request.get( req.body.url ).pipe( res );
+export const download = ( req, res ) => {
+  let filename;
+  let url;
+  if ( req.body.url && req.body.filename ) ( { filename, url } = req.body );
+  else {
+    const opts = JSON.parse( Buffer.from( req.params.opts, 'base64' ).toString() );
+    console.log( 'opts', opts );
+    ( { filename, url } = opts );
+  }
+  res.setHeader( 'Content-Type', 'application/octet-stream' );
+  res.setHeader( 'Content-Disposition', `attachment; filename=${filename}` );
+  request.get( url ).pipe( res );
 };
-
