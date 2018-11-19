@@ -1,4 +1,4 @@
-import request from 'request';
+import Request from 'request';
 
 export const download = ( req, res ) => {
   let filename;
@@ -6,10 +6,9 @@ export const download = ( req, res ) => {
   if ( req.body.url && req.body.filename ) ( { filename, url } = req.body );
   else {
     const opts = JSON.parse( Buffer.from( req.params.opts, 'base64' ).toString() );
-    console.log( 'opts', opts );
     ( { filename, url } = opts );
   }
   res.setHeader( 'Content-Type', 'application/octet-stream' );
   res.setHeader( 'Content-Disposition', `attachment; filename=${filename}` );
-  request.get( url ).pipe( res );
+  Request.get( url ).pipe( res );
 };
