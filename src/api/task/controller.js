@@ -1,4 +1,5 @@
 import Request from 'request';
+import Mime from 'mime-types';
 
 export const download = ( req, res ) => {
   let filename;
@@ -8,7 +9,38 @@ export const download = ( req, res ) => {
     const opts = JSON.parse( Buffer.from( req.params.opts, 'base64' ).toString() );
     ( { filename, url } = opts );
   }
-  res.setHeader( 'Content-Type', 'application/octet-stream' );
-  res.setHeader( 'Content-Disposition', `attachment; filename=${filename}` );
-  Request.get( url ).pipe( res );
+  const mimeType = Mime.lookup( url ) || 'application/octet-stream';
+  Request.head( { url }, ( error, response ) => {
+    const fileSize = response.headers['content-length'];
+    // Chunks based streaming
+    if ( req.headers.range ) {
+      const { range } = req.headers;
+      const parts = range.replace( /bytes=/, '' ).split( '-' );
+      const start = parseInt( parts[0], 10 );
+      const end = parts[1] ? parseInt( parts[1], 10 ) : fileSize - 1;
+      const chunksize = end - start + 1; // eslint-disable-line no-mixed-operators
+
+      const head = {
+        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': chunksize,
+        'Content-Type': mimeType
+      };
+      res.writeHead( 206, head );
+      Request.get( url, {
+        headers: {
+          Accept: '*/*',
+          'Accept-Encoding': 'identity',
+          connection: 'keep-alive',
+          range,
+          'accept-ranges': 'bytes'
+        }
+      } ).pipe( res );
+    } else {
+      res.setHeader( 'Content-Length', fileSize );
+      res.setHeader( 'Content-Type', mimeType );
+      res.setHeader( 'Content-Disposition', `attachment; filename=${filename}` );
+      Request.get( url ).pipe( res );
+    }
+  } );
 };
