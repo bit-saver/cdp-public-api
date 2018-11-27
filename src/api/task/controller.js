@@ -10,7 +10,15 @@ export const download = ( req, res ) => {
     ( { filename, url } = opts );
   }
   const mimeType = Mime.lookup( url ) || 'application/octet-stream';
-  Request.head( { url }, ( error, response ) => {
+  const reqHead = Request.head( { url }, ( error, response ) => {
+    if ( error ) {
+      reqHead.abort();
+      return res.status( 404 ).json( error );
+    }
+    if ( response.statusCode !== '200' ) {
+      reqHead.abort();
+      return res.status( 404 ).send( 'File not found.' );
+    }
     const fileSize = response.headers['content-length'];
     // Chunks based streaming
     if ( req.headers.range ) {
