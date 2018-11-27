@@ -45,7 +45,7 @@ export const download = ( req, res ) => {
         }
       } ).pipe( res );
     } else {
-      res.setHeader( 'Content-Length', fileSize );
+      if ( fileSize ) res.setHeader( 'Content-Length', fileSize );
       res.setHeader( 'Content-Type', mimeType );
       res.setHeader( 'Content-Disposition', `attachment; filename=${filename}` );
       Request.get( url ).pipe( res );
