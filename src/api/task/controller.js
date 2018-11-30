@@ -15,7 +15,8 @@ export const download = ( req, res ) => {
       reqHead.abort();
       return res.status( 404 ).json( error );
     }
-    if ( response.statusCode !== '200' ) {
+    if ( response.statusCode !== 200 ) {
+      console.log( 'statusCode', response.statusCode );
       reqHead.abort();
       return res.status( 404 ).send( 'File not found.' );
     }
