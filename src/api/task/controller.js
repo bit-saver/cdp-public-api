@@ -105,22 +105,11 @@ const getOpenNetIPs = () => {
  * @returns {*}
  */
 export const isOpenNet = ( req, res ) => {
-  const ip = ( req.headers['x-forwarded-for'] || '' ).split( ',' ).pop() ||
+  const ip = ( req.headers['x-forwarded-for'] || '' ).split( ',' ).shift() ||
     req.connection.remoteAddress ||
     req.socket.remoteAddress ||
     req.connection.socket.remoteAddress;
-  if ( !ip ) {
-    console.error( 'No IP address found.\r\n', JSON.stringify( req.headers, null, 2 ), '\r\n', JSON.stringify( req.connection, null, 2 ) );
-    return res.json( { error: 1, message: 'IP Address not found.', isOpenNet: false } );
-  }
-  if ( true || ip.startsWith( '10.' ) ) {
-    console.log( req.headers );
-    console.log( req.connection.remoteAddress );
-    if ( req.connection && req.connection.socket ) {
-      console.log( req.connection.socket.remoteAddress );
-    }
-    if ( req.socket ) console.log( req.socket.remoteAddress );
-  }
+  if ( !ip ) return res.json( { error: 1, message: 'IP Address not found.', isOpenNet: false } );
   const ipnum = ipToNum( ip );
   const OpenNetIPs = getOpenNetIPs();
   let openNet = false;
