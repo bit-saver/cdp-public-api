@@ -116,7 +116,6 @@ export const isOpenNet = ( req, res ) => {
   OpenNetIPs.forEach( ( range ) => {
     if ( checkRange( ipnum, range ) ) openNet = true;
   } );
-  console.log( 'Found IP: ', ip, ' OpenNet range: ', OpenNetIPs, '\r\nIs OpenNet: ', openNet );
   return res.json( {
     error: 0,
     isOpenNet: openNet
