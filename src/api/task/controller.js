@@ -109,13 +109,17 @@ export const isOpenNet = ( req, res ) => {
     req.connection.remoteAddress ||
     req.socket.remoteAddress ||
     req.connection.socket.remoteAddress;
-  if ( !ip ) return res.json( { error: 1, message: 'IP Address not found.', isOpenNet: false } );
+  if ( !ip ) {
+    console.error( 'No IP address found.\r\n', JSON.stringify( req.headers, null, 2 ), '\r\n', JSON.stringify( req.connection, null, 2 ) );
+    return res.json( { error: 1, message: 'IP Address not found.', isOpenNet: false } );
+  }
   const ipnum = ipToNum( ip );
   const OpenNetIPs = getOpenNetIPs();
   let openNet = false;
   OpenNetIPs.forEach( ( range ) => {
     if ( checkRange( ipnum, range ) ) openNet = true;
   } );
+  console.log( 'Found IP: ', ip, ' OpenNet range: ', OpenNetIPs, '\r\nIs OpenNet: ', openNet );
   return res.json( {
     error: 0,
     isOpenNet: openNet
