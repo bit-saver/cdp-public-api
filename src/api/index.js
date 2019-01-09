@@ -11,6 +11,7 @@ import languageRoutes from './resources/language/routes';
 import taxonomyRoutes from './resources/taxonomy/routes';
 import ownerRoutes from './resources/owner/routes';
 import taskRoutes from './task/routes';
+import testRoutes from './test/routes';
 
 import authRoutes, { requireAuth } from './modules/auth';
 
@@ -36,6 +37,8 @@ router.use( '/course', courseRoutes );
 router.use( '/language', languageRoutes );
 router.use( '/taxonomy', taxonomyRoutes );
 router.use( '/owner', ownerRoutes );
+
+router.use( '/test', testRoutes );
 
 router.use( cleanTempFilesCtrl );
 

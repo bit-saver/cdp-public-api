@@ -249,6 +249,8 @@ const transferAsset = ( model, asset, req ) => {
               }
             } );
             if ( !hasError ) {
+              // eslint-disable-next-line max-len
+              // TODO: shouldn't this erase the video property data since it overwrites size and duration?
               updateAsset( model, asset, result, download.props.md5 );
               resolve( result );
             } else {
