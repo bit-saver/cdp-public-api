@@ -17,17 +17,20 @@ server.listen( PORT, () => {
 } );
 
 const queues = async () => {
-  await sqs.deleteQueue( 'UploadQueue' );
-
-
-  const uploadQueue = await sqs.createQueue( 'UploadQueue' );
-  console.log( 'uploadQueue result', uploadQueue );
-
-  const consumer = sqs.createConsumer( 'UploadQueue' );
-  consumer.start();
+  try {
+    await sqs.createQueue( 'DownloadQueue' );
+    const downloadConsumer = sqs.createConsumer( 'DownloadQueue' );
+    await sqs.createQueue( 'UploadQueue' );
+    const uploadConsumer = sqs.createConsumer( 'UploadQueue' );
+    downloadConsumer.start();
+    uploadConsumer.start();
+  } catch ( e ) {
+    console.error( e );
+    server.abort();
+  }
 };
 
-// const queueresult = queues();
+queues();
 
 if ( module.hot ) {
   module.hot.accept( ['./server'], () => {
