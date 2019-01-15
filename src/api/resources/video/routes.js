@@ -2,25 +2,37 @@ import { Router } from 'express';
 import controller from './controller';
 import VideoModel from './model';
 import { validate } from '../../../middleware/validateSchema';
-import { transferCtrl, deleteCtrl, asyncTransferCtrl } from '../../../middleware/transfer';
+import { deleteCtrl, asyncTransferCtrl } from '../../../middleware/transfer';
 import { translateCategories } from '../../../middleware/categories';
 import asyncResponse from '../../../middleware/asyncResponse';
+import { transferCtrl } from '../../../services/transfers';
 
 const router = new Router();
 
 router.param( 'uuid', controller.setRequestDoc );
 
 // Route: /v1/video
+// router
+//   .route( '/' )
+//   .post(
+//     validate( VideoModel ),
+//     asyncResponse(),
+//     transferCtrl( VideoModel ),
+//     translateCategories( VideoModel ),
+//     controller.indexDocument,
+//     asyncTransferCtrl( VideoModel ),
+//     controller.indexDocument
+//   );
 router
   .route( '/' )
   .post(
     validate( VideoModel ),
     asyncResponse(),
     transferCtrl( VideoModel ),
-    translateCategories( VideoModel ),
-    controller.indexDocument,
+    // translateCategories( VideoModel ),
+    // controller.indexDocument,
     asyncTransferCtrl( VideoModel ),
-    controller.indexDocument
+    // controller.indexDocument
   );
 
 // Route: /v1/video/[uuid]

@@ -111,7 +111,6 @@ export const getContentTypes = () => {
 export const getTypeFromUrl = async ( url ) => {
   const result = await new Promise( ( resolve ) => {
     const encodedURI = encodeURI( url );
-    console.log( 'getType url', url, encodedURI );
     if ( !encodedURI ) return resolve( null );
     Request.head(
       {
@@ -119,7 +118,6 @@ export const getTypeFromUrl = async ( url ) => {
         headers: { 'User-Agent': 'API' }
       },
       ( error, response ) => {
-        console.log( 'content-type response', response.headers );
         if ( !error && response && response.headers && response.headers['content-type'] ) {
           if ( response.headers['content-type'].toLowerCase() === 'application/octet-stream' ) {
             // Missing legitimate content type so use extension instead

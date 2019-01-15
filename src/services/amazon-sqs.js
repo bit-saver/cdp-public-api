@@ -23,8 +23,11 @@ export const deleteQueue = async ( queueName ) => {
   return result;
 };
 
-export const sendMessage = async ( params ) => {
-  const result = await sqs.sendMessage( params ).promise();
+export const sendMessage = async ( queueName, body ) => {
+  const result = await sqs.sendMessage( {
+    MessageBody: JSON.stringify( body ),
+    QueueUrl: `${URL}${queueName}`
+  } ).promise();
 
   return result;
 };
@@ -38,7 +41,8 @@ export const createConsumer = ( queueName, handler ) => {
       const body = JSON.parse( message.Body );
       console.log( 'Got dis body, yo: ', body );
       done();
-    } )
+    } ),
+    batchSize: 3
   } );
 
   app.on( 'error', ( err ) => {
