@@ -11,7 +11,8 @@ const indexDocument = model => async ( req, res, next ) => {
   if ( found ) {
     return next( new Error( 'Owner already exists.' ) );
   }
-  const created = await controllers.indexDocument( model, req );
+  const created = await model.indexDocument( req.body )
+    .then( parser.parseCreateResult( req.body ) );
   res.json( created );
   next();
 };
