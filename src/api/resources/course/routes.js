@@ -3,7 +3,7 @@ import controller from './controller';
 import CourseModel from './model';
 import { transferCtrl, deleteCtrl } from '../../../middleware/transfer';
 import asyncResponse from '../../../middleware/asyncResponse';
-import { validate } from '../../../middleware/validateSchema';
+import { validateRequest } from '../../../middleware/validateSchema';
 import {
   translateCategories,
   tagCategories,
@@ -18,7 +18,7 @@ router.param( 'uuid', controller.setRequestDoc );
 router
   .route( '/' )
   .post(
-    validate( CourseModel ),
+    validateRequest( CourseModel ),
     asyncResponse(),
     transferCtrl( CourseModel ),
     tagCategories,
@@ -31,7 +31,7 @@ router
 router
   .route( '/:uuid' )
   .put(
-    validate( CourseModel ),
+    validateRequest( CourseModel ),
     asyncResponse(),
     transferCtrl( CourseModel ),
     tagCategories,

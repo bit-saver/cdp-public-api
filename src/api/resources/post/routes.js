@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import controller from './controller';
 import PostModel from './model';
-import { validate } from '../../../middleware/validateSchema';
+import { validateRequest } from '../../../middleware/validateSchema';
 import { transferCtrl, deleteCtrl } from '../../../middleware/transfer';
 import asyncResponse from '../../../middleware/asyncResponse';
 import {
@@ -18,7 +18,7 @@ router.param( 'uuid', controller.setRequestDoc );
 router
   .route( '/' )
   .post(
-    validate( PostModel ),
+    validateRequest( PostModel ),
     asyncResponse(),
     transferCtrl( PostModel ),
     tagCategories,
@@ -31,7 +31,7 @@ router
 router
   .route( '/:uuid' )
   .put(
-    validate( PostModel, false ),
+    validateRequest( PostModel, false ),
     asyncResponse( false ),
     controller.setRequestDocWithRetry,
     controller.updateDocumentById
