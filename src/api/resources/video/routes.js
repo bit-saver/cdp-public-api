@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import controller from './controller';
 import VideoModel from './model';
-import { validate } from '../../../middleware/validateSchema';
+import { validateRequest } from '../../../middleware/validateSchema';
 import { transferCtrl, deleteCtrl, asyncTransferCtrl } from '../../../middleware/transfer';
 import { translateCategories } from '../../../middleware/categories';
 import asyncResponse from '../../../middleware/asyncResponse';
@@ -14,7 +14,7 @@ router.param( 'uuid', controller.setRequestDoc );
 router
   .route( '/' )
   .post(
-    validate( VideoModel ),
+    validateRequest( VideoModel ),
     asyncResponse(),
     transferCtrl( VideoModel ),
     translateCategories( VideoModel ),
@@ -27,7 +27,7 @@ router
 router
   .route( '/:uuid' )
   .put(
-    validate( VideoModel ),
+    validateRequest( VideoModel ),
     asyncResponse(),
     transferCtrl( VideoModel ),
     translateCategories( VideoModel ),

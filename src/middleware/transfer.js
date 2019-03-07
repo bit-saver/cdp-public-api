@@ -1,9 +1,6 @@
 import aws from '../services/amazon-aws';
-import cloudflare from '../services/cloudflare';
 import Download from '../api/modules/download';
 import * as utils from '../api/modules/utils';
-import { exec as mediainfo } from 'mediainfo-parser';
-import vimeo from '../services/vimeo';
 
 const downloadAsset = async ( url, requestId ) => {
   const download = await Download( url, requestId );
@@ -27,87 +24,6 @@ const uploadAsset = async ( reqBody, download ) => {
   return result;
 };
 
-const uploadVimeo = async ( download, token, props = {} ) => {
-  const result = await vimeo.upload( download.filePath, token, props );
-  return result;
-};
-
-const uploadCloudflare = async ( download ) => {
-  const result = await cloudflare.upload( download.filePath );
-  return result;
-};
-
-/**
- * Same as uploadCloudflare but always resolves instead of rejecting due to errors.
- * Errors are reported in console.
- *
- * @param download
- * @param asset
- * @returns {Promise<any>}
- */
-const uploadCloudflareAsync = ( download, asset ) => {
-  console.log(
-    'uploadCloudflareAsync download and asset',
-    '\r\n',
-    JSON.stringify( download, null, 2 ),
-    JSON.stringify( asset, null, 2 )
-  );
-  return new Promise( ( resolve ) => {
-    cloudflare
-      .upload( download.filePath )
-      .then( ( result ) => {
-        resolve( { asset, ...result } );
-      } )
-      .catch( ( err ) => {
-        console.error( 'uploadStreamSync error', err );
-        resolve( null );
-      } );
-  } );
-};
-
-const getVideoProperties = download => new Promise( ( resolve, reject ) => {
-  mediainfo( download.filePath, ( err, result ) => {
-    if ( err ) {
-      console.error( 'MEDIAINFO ENCOUNTERED AN ERROR', '\r\n', err );
-      return resolve( null );
-    }
-    if (
-      !result.media ||
-        !result.media.track ||
-        result.media.track.length < 1 ||
-        typeof result.media.track.forEach !== 'function'
-    ) {
-      console.error(
-        'MediaInfo could not obtain properties...',
-        '\r\n',
-        JSON.stringify( result.media, null, 2 )
-      );
-      return reject( new Error( 'No media info.' ) );
-    }
-    const props = {
-      size: {
-        width: null,
-        height: null,
-        filesize: null,
-        bitrate: null
-      },
-      duration: null
-    };
-    result.media.track.forEach( ( data ) => {
-      if ( data._type === 'General' ) {
-        props.size.filesize = data.filesize;
-        props.size.bitrate = data.overallbitrate;
-        props.duration = data.duration;
-      } else if ( data._type === 'Video' ) {
-        props.size.width = data.width;
-        props.size.height = data.height;
-      }
-    } );
-    console.log( 'mediainfo', JSON.stringify( props, null, 2 ) );
-    resolve( props );
-  } );
-} );
-
 const updateAsset = ( model, asset, result, md5 ) => {
   // Modify the original request by:
   // replacing the downloadUrl and adding a checksum
@@ -121,25 +37,10 @@ const updateAsset = ( model, asset, result, md5 ) => {
   } );
 };
 
-const deleteAssets = ( assets, req ) => {
+const deleteAssets = ( assets ) => {
   if ( !assets || assets.length < 1 ) return;
   assets.forEach( ( asset ) => {
     if ( asset.url ) aws.remove( asset );
-    if (
-      asset.stream &&
-      asset.stream.uid &&
-      ( !asset.stream.site || asset.stream.site === 'cloudflare' )
-    ) {
-      cloudflare.remove( asset.stream.uid );
-    }
-    if (
-      req.headers.vimeo_token &&
-      asset.stream &&
-      asset.stream.uid &&
-      asset.stream.site === 'vimeo'
-    ) {
-      vimeo.remove( asset.stream.uid, req.headers.vimeo_token );
-    }
   } );
 };
 
@@ -170,7 +71,7 @@ const isTypeAllowed = async ( url ) => {
  * @param req
  * @returns {Promise<any>}
  */
-const transferAsset = ( model, asset, req ) => {
+const transferAsset = ( model, asset ) => {
   if ( asset.downloadUrl ) {
     return new Promise( async ( resolve, reject ) => {
       let download = null;
@@ -203,40 +104,6 @@ const transferAsset = ( model, asset, req ) => {
         console.log( 'Update required for download hash: ', download.props.md5 );
         const uploads = [];
         uploads.push( uploadAsset( model.body, download ) );
-        if ( download.props.contentType.startsWith( 'video' ) ) {
-          // Check for Vimeo token to use for Vimeo upload
-          if ( req.headers.vimeo_token ) {
-            const unit = model.getUnit( asset.unitIndex );
-            const props = {
-              name: unit.title || null,
-              description: unit.desc || null
-            };
-            uploads.push( uploadVimeo( download, req.headers.vimeo_token, props ) );
-          }
-          // Check size for Cloudflare upload
-          const size = await getVideoProperties( download ).catch( ( err ) => {
-            uploads.push( Promise.resolve( err ) );
-          } );
-          if ( size ) {
-            // Do not upload to Cloudflare if we uploaded to Vimeo
-            if ( !req.headers.vimeo_token ) {
-              const maxSize = ( process.env.CF_MAX_SIZE || 1024 ) * 1024 * 1024;
-              const fileSize = size.size.filesize;
-              if ( fileSize < maxSize ) {
-                // Test the env variable for true or if not set, assume true
-                if ( /^true/.test( process.env.CF_STREAM_ASYNC || 'true' ) ) {
-                  model.putAsyncTransfer( uploadCloudflareAsync( download, {
-                    ...asset,
-                    md5: download.props.md5
-                  } ) ); // eslint-disable-line max-len
-                } else uploads.push( uploadCloudflare( download ) );
-              } else {
-                console.log( `Upload too large for cloudflare: maxSize ${maxSize} fileSize ${fileSize}` );
-              }
-            }
-            uploads.push( Promise.resolve( size ) );
-          }
-        }
 
         Promise.all( uploads )
           .then( ( results ) => {
@@ -287,7 +154,7 @@ export const transferCtrl = Model => async ( req, res, next ) => {
   }
 
   reqAssets.forEach( ( asset ) => {
-    transfers.push( transferAsset( model, asset, req ) );
+    transfers.push( transferAsset( model, asset ) );
   } );
 
   // Once all promises resolve, pass request onto ES controller
