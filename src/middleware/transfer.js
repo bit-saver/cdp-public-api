@@ -2,7 +2,7 @@ import aws from '../services/amazon-aws';
 import cloudflare from '../services/cloudflare';
 import Download from '../api/modules/download';
 import * as utils from '../api/modules/utils';
-import { exec as mediainfo } from 'mediainfo-parser';
+import { exec } from 'child_process';
 import vimeo from '../services/vimeo';
 
 const downloadAsset = async ( url, requestId ) => {
@@ -66,45 +66,36 @@ const uploadCloudflareAsync = ( download, asset ) => {
 };
 
 const getVideoProperties = download => new Promise( ( resolve, reject ) => {
-  mediainfo( download.filePath, ( err, result ) => {
-    if ( err ) {
-      console.error( 'MEDIAINFO ENCOUNTERED AN ERROR', '\r\n', err );
-      return resolve( null );
+  const props = {
+    size: {
+      width: null,
+      height: null,
+      filesize: null,
+      bitrate: null
+    },
+    duration: null
+  };
+  exec( `ffprobe -i "${download.filePath}asdf" -hide_banner -show_format -show_streams -v error -print_format json`, ( error, stdout ) => {
+    if ( error ) {
+      return reject( new Error( 'Video properties could not be obtained' ) );
     }
-    if (
-      !result.media ||
-        !result.media.track ||
-        result.media.track.length < 1 ||
-        typeof result.media.track.forEach !== 'function'
-    ) {
-      console.error(
-        'MediaInfo could not obtain properties...',
-        '\r\n',
-        JSON.stringify( result.media, null, 2 )
-      );
-      return reject( new Error( 'No media info.' ) );
-    }
-    const props = {
-      size: {
-        width: null,
-        height: null,
-        filesize: null,
-        bitrate: null
-      },
-      duration: null
-    };
-    result.media.track.forEach( ( data ) => {
-      if ( data._type === 'General' ) {
-        props.size.filesize = data.filesize;
-        props.size.bitrate = data.overallbitrate;
-        props.duration = data.duration;
-      } else if ( data._type === 'Video' ) {
-        props.size.width = data.width;
-        props.size.height = data.height;
+    const meta = JSON.parse( stdout );
+    if ( meta.streams && meta.streams.length > 0 ) {
+      for ( let i = 0; i < meta.streams.length; i + 1 ) {
+        const stream = meta.streams[i];
+        if ( stream.codec_type === 'video' ) {
+          props.size.width = stream.width;
+          props.size.height = stream.height;
+          break;
+        }
       }
-    } );
-    console.log( 'mediainfo', JSON.stringify( props, null, 2 ) );
-    resolve( props );
+      if ( meta.format ) {
+        props.size.filesize = meta.format.size;
+        props.size.bitrate = meta.format.bit_rate;
+        props.duration = meta.format.duration;
+      }
+    }
+    return resolve( props );
   } );
 } );
 
