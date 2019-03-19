@@ -75,7 +75,7 @@ const getVideoProperties = download => new Promise( ( resolve, reject ) => {
     },
     duration: null
   };
-  exec( `ffprobe -i "${download.filePath}asdf" -hide_banner -show_format -show_streams -v error -print_format json`, ( error, stdout ) => {
+  exec( `ffprobe -i "${download.filePath}" -hide_banner -show_format -show_streams -v error -print_format json`, ( error, stdout ) => {
     if ( error ) {
       return reject( new Error( 'Video properties could not be obtained' ) );
     }
