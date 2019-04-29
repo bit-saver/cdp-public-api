@@ -11,7 +11,8 @@
     "start": "node build/server.js",
     "dev": "webpack --config webpack.develop.js --colors --progress",
     "test:unit": "NODE_ENV=testing rm -rf ./tmp/mocha-webpack && mocha-webpack --webpack-config webpack.testing.js \"src/**/*.test.js\" --timeout 10000 --require source-map-support/register || true",
-    "test": "npm run test:unit"
+    "test": "npm run test:unit",
+    "cc": "rm -rf ./node_modules/.cache/@babel"
   },
   "dependencies": {
     "ajv": "^6.4.0",

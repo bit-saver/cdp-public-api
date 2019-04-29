@@ -5,7 +5,7 @@ const videoSchema = {
   title: 'Video',
   type: 'object',
   properties: {
-    post_id: { type: 'integer' },
+    post_id: { type: 'string' },
     site: { type: 'string' },
     type: { type: 'string' },
     published: { type: 'string' },
@@ -28,13 +28,26 @@ const videoSchema = {
           language: languageSchema,
           title: { type: 'string' },
           desc: { type: 'string' },
+          thumbnail: thumbnailSchema,
           categories: {
             type: 'array',
-            items: { type: 'string' }
+            items: {
+              type: 'object',
+              properties: {
+                id: { type: 'string' },
+                name: { type: 'string' }
+              }
+            }
           },
           tags: {
             type: 'array',
-            items: { type: 'string' }
+            items: {
+              type: 'object',
+              properties: {
+                id: { type: 'string' },
+                name: { type: 'string' }
+              }
+            }
           },
           source: {
             type: 'array',

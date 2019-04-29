@@ -56,30 +56,34 @@ const isTypeAllowed = ( contentType ) => {
  * @param model
  * @param asset
  */
-const updateAsset = ( model, asset ) => ( !asset.downloadUrl ? null : new Promise( async ( resolve ) => {
-  console.log( '[updateAsset]', asset );
+const updateAsset = ( model, asset ) => new Promise( async ( resolve ) => {
+  // console.log( '[updateAsset]', asset );
   const contentType = await utils.getTypeFromUrl( asset.downloadUrl );
   const allowed = isTypeAllowed( contentType );
   if ( !allowed ) {
     return resolve( new Error( `Content type not allowed for asset: ${asset.downloadUrl}` ) );
   }
-  // Check to see if is already present
-  // in the ES model assets and if so, no update needed.
-  const updateNeeded = model.updateIfNeeded( asset, asset.md5 );
-  if ( !updateNeeded ) return resolve( { message: 'Update not required (md5 match).' } );
 
   if ( contentType.toLowerCase().startsWith( 'video' ) ) {
-    const size = await getVideoProperties( asset.downloadUrl ).catch( err => resolve( err ) );
-    model.putAsset( {
-      ...asset,
-      size: size.size || null,
-      duration: size.duration || null
-    } );
-  } else {
-    model.putAsset( asset );
+    // Check to see if we are missing any video meta data
+    let needsMeta = !asset.size || !asset.duration;
+    if ( !needsMeta ) {
+      needsMeta = Object.values( asset.size )
+        .reduce( ( needs, val ) => needs || !val, !asset.duration );
+    }
+    if ( needsMeta ) {
+      const size = await getVideoProperties( asset.downloadUrl ).catch( err => resolve( err ) );
+      model.putAsset( {
+        ...asset,
+        size: size.size || null,
+        duration: size.duration || null
+      } );
+      return resolve();
+    }
   }
+  model.putAsset( asset );
   resolve();
-} ) );
+} );
 
 const deleteAssets = ( assets ) => {
   if ( !assets || assets.length < 1 ) return;
@@ -103,6 +107,7 @@ export const updateVideoCtrl = Model => async ( req, next ) => {
   }
 
   reqAssets.forEach( ( asset ) => {
+    if ( !asset.downloadUrl ) return;
     updates.push( updateAsset( model, asset ) );
   } );
 
@@ -116,7 +121,6 @@ export const updateVideoCtrl = Model => async ( req, next ) => {
       if ( !hasError ) {
         const s3FilesToDelete = model.getFilesToRemove();
         if ( s3FilesToDelete.length ) deleteAssets( s3FilesToDelete, req );
-        console.log( 'UPDATE VIDEO CTRL NEXT', req.requestId );
         next();
       } else {
         console.log( `UPDATE VIDEO CTRL error [${model.getTitle()}]`, hasError );

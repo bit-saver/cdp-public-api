@@ -5,7 +5,7 @@ import * as utils from '../../../modules/utils/index';
 export const indexDocument = model => ( req, callback ) => controllers.indexDocument( model, req )
   .then( ( doc ) => {
     req.esDoc = doc;
-    callback();
+    callback( doc );
   } )
   .catch( error => callback( error ) );
 
@@ -32,22 +32,23 @@ export const getDocumentById = () => ( req, callback ) => {
 };
 
 export const setRequestDoc = model => ( req, callback ) => {
-  if ( !req.params.uuid ) return callback();
-  console.log( 'setRequestDoc running' );
-  const query = utils.getQueryFromUuid( req.params.uuid );
+  const query = req.params.uuid ? utils.getQueryFromUuid( req.params.uuid ) : {
+    post_id: req.body.post_id,
+    site: req.body.site
+  };
   req.queryArgs = query;
   return controllers.findDocument( model, query )
     .then( ( doc ) => {
-      if ( doc ) req.esDoc = doc;
-      else console.log( 'Set request doc failed' );
+      if ( doc ) {
+        req.esDoc = doc;
+      }
       callback();
     } )
     .catch( error => callback( error ) );
 };
 
 export const setRequestDocWithRetry = model => async ( req, callback ) => {
-  const query = utils.getQueryFromUuid( req.params.uuid );
-  req.queryArgs = query;
+  req.queryArgs = utils.getQueryFromUuid( req.params.uuid );
   let attempts = 0;
   const findDoc = () => {
     attempts += 1;

@@ -5,9 +5,6 @@ const validate = ( Model, useDefaults, body ) => {
   if ( !result.valid ) {
     return new Error( compileValidationErrors( result.errors ) );
   }
-  if ( !body.thumbnail || !body.thumbnail.sizes ) {
-    console.log( 'Missing thumbnail', '\r\n', JSON.stringify( body, null, 2 ) );
-  }
   return null;
 };
 

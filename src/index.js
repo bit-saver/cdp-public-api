@@ -1,7 +1,7 @@
 import {} from 'dotenv/config';
-import apm from 'elastic-apm-node/start';
+// import apm from 'elastic-apm-node/start';
 
-require( 'newrelic' );
+// require( 'newrelic' );
 
 import http from 'http';
 import app from './server';
@@ -11,7 +11,7 @@ import createSocket from './socket';
 const server = http.createServer( app );
 let currentApp = app;
 const PORT = process.env.PORT || 8080;
-const io = createSocket( server );
+createSocket( server );
 
 server.listen( PORT, () => {
   console.log( `CDP service listening on port: ${PORT}` );
@@ -21,6 +21,7 @@ if ( module.hot ) {
   module.hot.accept( ['./server', './socket'], () => {
     server.removeListener( 'request', currentApp );
     server.on( 'request', app );
+    createSocket( server );
     currentApp = app;
   } );
 }

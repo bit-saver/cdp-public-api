@@ -7,13 +7,13 @@ import { updateVideoCtrl, deleteAssetCtrl } from './updateAssets';
 const controller = generateControllers( new VideoModel() );
 
 const videoPaths = {
-  PUT: [
+  index: [
     controller.setRequestDoc,
     validateSocket( VideoModel ),
     updateVideoCtrl( VideoModel ),
     controller.indexDocument
   ],
-  DELETE: [
+  delete: [
     controller.setRequestDoc,
     deleteAssetCtrl( VideoModel ),
     controller.deleteDocumentById
@@ -25,6 +25,7 @@ const videoPaths = {
  */
 class VideoRouter {
   constructor( operation, client, req ) {
+    this.operation = operation;
     this.client = client;
     this.path = [...videoPaths[operation]];
     if ( 'body' in req ) {
@@ -50,12 +51,12 @@ class VideoRouter {
 
   callback( result ) {
     if ( result instanceof Error ) {
-      this.client.send( {
+      this.client.emit( `${this.operation}.result`, {
         error: result.message,
         req: this.req
       } );
     } else if ( result ) {
-      this.client.send( {
+      this.client.emit( `${this.operation}.result`, {
         req: this.req,
         result
       } );
@@ -63,7 +64,7 @@ class VideoRouter {
       this.next();
     } else {
       // We shouldn't reach this point as data or error should have returned by now.
-      this.client.send( {
+      this.client.emit( `${this.operation}.result`, {
         error: 'End of line',
         req: this.req
       } );
@@ -73,6 +74,7 @@ class VideoRouter {
   static route( operation, client, req ) {
     const router = new VideoRouter( operation, client, req );
     router.next();
+    return router.req.requestId;
   }
 }
 
