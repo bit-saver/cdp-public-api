@@ -6,9 +6,16 @@ class Owner extends AbstractModel {
   }
 
   /**
+   * Override getAllDocuments to return all owners sorted by name.
+   */
+  getAllDocuments() {
+    return this.getSortedDocuments( 'name.keyword' );
+  }
+
+  /**
    * Searches Elasticsearch for an owner that has an exact match for the owner provided.
    *
-   * @param locale
+   * @param name
    * @returns {Promise<*>}
    */
   async findDocByTerm( name ) {
