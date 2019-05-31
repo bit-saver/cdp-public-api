@@ -6,6 +6,13 @@ class Language extends AbstractModel {
   }
 
   /**
+   * Override getAllDocuments to return all languages sorted by display_name.
+   */
+  getAllDocuments() {
+    return this.getSortedDocuments( 'display_name.keyword' );
+  }
+
+  /**
    * Searches Elasticsearch for a language that has an exact match for the locale provided.
    *
    * @param locale
