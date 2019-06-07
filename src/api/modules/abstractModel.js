@@ -244,14 +244,21 @@ class AbstractModel {
     return result;
   }
 
-  async getAllDocuments() {
+  /**
+   * Retreive all available documents sorted by the provided argument.
+   * Sort defaults to the document UID.
+   * Append '.keyword' if the sort field is text based.
+   * @param sort
+   * @returns {Promise}
+   */
+  async getSortedDocuments( sort = '_uid' ) {
     const size = 100;
     let count = 0;
     const result = await client
       .search( {
         index: this.index,
         type: this.type,
-        sort: '_uid',
+        sort,
         size
       } )
       .catch( err => err );
@@ -268,7 +275,7 @@ class AbstractModel {
             index: this.index,
             type: this.type,
             size,
-            sort: '_uid',
+            sort,
             from: count
           } )
           .catch( err => err );
@@ -283,6 +290,14 @@ class AbstractModel {
       await collectHits();
     }
     return result;
+  }
+
+  /**
+   * Retreive all documents sorted by UID.
+   * @returns {Promise}
+   */
+  getAllDocuments() {
+    return this.getSortedDocuments();
   }
 }
 
