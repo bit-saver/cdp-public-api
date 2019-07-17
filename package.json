@@ -35,6 +35,7 @@
     "mime-types": "^2.1.24",
     "newrelic": "^4.1.2",
     "request": "^2.88.0",
+    "source-map-support": "^0.5.12",
     "tmp": "0.0.33",
     "tus-js-client": "^1.5.1",
     "vimeo": "^2.1.1"
@@ -56,7 +57,9 @@
     "nodemon": "^1.18.9",
     "prettier": "^1.15.3",
     "rimraf": "^2.6.3",
+    "start-server-webpack-plugin": "^2.2.5",
     "webpack": "^4.35.3",
+    "webpack-merge": "^4.2.1",
     "webpack-node-externals": "^1.7.2"
   }
 }
