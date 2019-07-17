@@ -1,8 +1,10 @@
 require( 'dotenv' ).config();
+
+import { Client } from 'elasticsearch';
+
 // http-aws-es module needs to be updated as it is 3 versions behind
 const httpAwsEs = require( 'http-aws-es' );
 
-import elasticsearch from 'elasticsearch';
 
 let connection;
 
@@ -26,4 +28,4 @@ if ( process.env.NODE_ENV === 'production' ) {
   };
 }
 
-export default elasticsearch.Client( connection );
+export default new Client( connection );

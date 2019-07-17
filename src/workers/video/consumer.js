@@ -6,7 +6,7 @@
 
 import {} from 'dotenv/config';
 import amqp from 'amqplib';
-import { create } from './controller';
+import { createVideo, deleteVideo } from './controller';
 
 // RabbitMQ connection string
 const messageQueueConnectionString = process.env.RABBITMQ_ENDPOINT;
@@ -34,28 +34,74 @@ function publishToChannel( channel, {
   } );
 }
 
+async function handleCreate( data, resultsChannel ) {
+  const { projectId, projectJson, projectStatus } = data;
+  const projectData = JSON.parse( projectJson );
+  console.dir( projectData );
+
+  // process data
+  const result = await createVideo( projectId, projectData );
+
+  console.log( '[x] RECEIVED a publish create request' );
+
+  // publish results to channel
+  await publishToChannel( resultsChannel, {
+    exchangeName: 'publish',
+    routingKey: 'result',
+    data: {
+      projectId, projectStatus, result, resultType: 'create'
+    }
+  } );
+  console.log( '[x] PUBLISHED publish create result' );
+}
+
+async function handleDelete( data, resultsChannel ) {
+  const { projectId, projectJson, projectStatus } = data;
+  const projectData = JSON.parse( projectJson );
+  console.dir( projectData );
+
+  // process data
+  const result = await deleteVideo( projectId );
+
+  console.log( '[x] RECEIVED a publish delete request' );
+
+  // publish results to channel
+  await publishToChannel( resultsChannel, {
+    exchangeName: 'publish',
+    routingKey: 'result',
+    data: {
+      projectId, projectStatus, result, resultType: 'delete'
+    }
+  } );
+  console.log( '[x] PUBLISHED publish delete result' );
+}
+
 // consume messages from RabbitMQ
 function consume( { connection, channel, resultsChannel } ) {
   return new Promise( ( resolve, reject ) => {
     channel.consume( 'publish.create', async ( msg ) => {
       // parse message
       const msgBody = msg.content.toString();
-      const data = JSON.parse( msgBody );
-      const { projectId, projectData } = data;
+      try {
+        const data = JSON.parse( msgBody );
+        await handleCreate( data, resultsChannel );
+      } catch ( error ) {
+        console.error( error );
+      }
 
-      // process data
-      console.dir( JSON.parse( projectData ) );
-      create();
+      // acknowledge message as processed successfully
+      await channel.ack( msg );
+    } );
 
-      console.log( '[x] RECEIVED a publish create request' );
-
-      // publish results to channel
-      await publishToChannel( resultsChannel, {
-        exchangeName: 'publish',
-        routingKey: 'result',
-        data: { projectId }
-      } );
-      console.log( '[x] PUBLISHED publish create result' );
+    channel.consume( 'publish.delete', async ( msg ) => {
+      // parse message
+      const msgBody = msg.content.toString();
+      try {
+        const data = JSON.parse( msgBody );
+        await handleDelete( data, resultsChannel );
+      } catch ( error ) {
+        console.error( error );
+      }
 
       // acknowledge message as processed successfully
       await channel.ack( msg );
@@ -88,4 +134,4 @@ async function listenForMessages() {
 }
 
 
-listenForMessages();
+listenForMessages().then();

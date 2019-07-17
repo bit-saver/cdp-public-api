@@ -5,7 +5,7 @@ const videoSchema = {
   title: 'Video',
   type: 'object',
   properties: {
-    post_id: { type: 'integer' },
+    post_id: { type: 'string' },
     site: { type: 'string' },
     type: { type: 'string' },
     published: { type: 'string' },

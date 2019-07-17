@@ -1,9 +1,9 @@
 const webpack = require( 'webpack' );
 const path = require( 'path' );
 const merge = require( 'webpack-merge' );
-const baseConfig = require( './webpack.base' );
 const nodeExternals = require( 'webpack-node-externals' );
 const StartServerPlugin = require( 'start-server-webpack-plugin' );
+const baseConfig = require( './webpack.base' );
 
 const config = {
   entry: ['webpack/hot/poll?1000', './src/index'],

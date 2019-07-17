@@ -63,7 +63,7 @@ const _reindex = ( oldIndex, newIndex, size, script, query ) => {
 
 export const updateAlias = ( req, res, next ) => {
   const addIndex = req.body.add;
-  const removeIndex = req.body.remove;
+  const removeIndex = req.body.deleteVideo;
   const indexAlias = req.body.alias;
 
   return client.indices
