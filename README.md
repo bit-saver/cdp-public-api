@@ -6,44 +6,44 @@
 
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-* [Getting Started](#getting-started)
-  * [Configuration](#configuration)
-  * [Using Docker](#using-docker)
-  * [Scripts](#scripts)
-* [Search Route](#search-route)
-  * [`/v1/search`](#v1search)
-    * [Request](#request)
-    * [Response](#response)
-    * [Search Properties](#search-properties)
-* [Resource Routes](#resource-routes)
-  * [`/v1/video/{site}_{post_id}`](#v1videosite_post_id)
-    * [Request](#request-1)
-    * [Response](#response-1)
-  * [`/v1/post/{site}_{post_id}`](#v1postsite_post_id)
-    * [Request](#request-2)
-    * [Response](#response-2)
-  * [`/v1/course`](#v1course)
-  * [`/v1/language`](#v1language)
-    * [Request](#request-3)
-    * [Response](#response-3)
-  * [`/v1/language/bulk`](#v1languagebulk)
-    * [Request](#request-4)
-  * [`/v1/taxonomy`](#v1taxonomy)
-    * [Request](#request-5)
-    * [Response](#response-4)
-  * [`/v1/taxonomy/bulk`](#v1taxonomybulk)
-    * [Request](#request-6)
-  * [`/v1/owner`](#v1owner)
-    * [Request](#request-7)
-    * [Response](#response-5)
-  * [`/v1/owner/bulk`](#v1ownerbulk)
-    * [Request](#request-8)
+- [Getting Started](#getting-started)
+  - [Configuration](#configuration)
+  - [Using Docker](#using-docker)
+  - [Scripts](#scripts)
+- [Search Route](#search-route)
+  - [`/v1/search`](#v1search)
+    - [Request](#request)
+    - [Response](#response)
+    - [Search Properties](#search-properties)
+- [Resource Routes](#resource-routes)
+  - [`/v1/video/{site}_{post_id}`](#v1videosite_post_id)
+    - [Request](#request-1)
+    - [Response](#response-1)
+  - [`/v1/post/{site}_{post_id}`](#v1postsite_post_id)
+    - [Request](#request-2)
+    - [Response](#response-2)
+  - [`/v1/course`](#v1course)
+  - [`/v1/language`](#v1language)
+    - [Request](#request-3)
+    - [Response](#response-3)
+  - [`/v1/language/bulk`](#v1languagebulk)
+    - [Request](#request-4)
+  - [`/v1/taxonomy`](#v1taxonomy)
+    - [Request](#request-5)
+    - [Response](#response-4)
+  - [`/v1/taxonomy/bulk`](#v1taxonomybulk)
+    - [Request](#request-6)
+  - [`/v1/owner`](#v1owner)
+    - [Request](#request-7)
+    - [Response](#response-5)
+  - [`/v1/owner/bulk`](#v1ownerbulk)
+    - [Request](#request-8)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Getting Started
 
-* `npm install`
+- `npm install`
 
 ### Configuration
 
@@ -54,11 +54,14 @@ NODE_ENV=development
 PORT=8080
 TMP_DIR=
 
-AWS_HOST=localhost:9200
+ELASTICSEARCH_HOST=localhost:9200
+
 AWS_REGION=us-east-1
 AWS_ACCESS_KEY_ID=
 AWS_SECRET_ACCESS_KEY=
-AWS_S3_BUCKET=
+AWS_S3_PUBLISHER_BUCKET=
+AWS_S3_PRODUCTION_BUCKET=
+
 
 CF_STREAM_ASYNC=true
 CF_STREAM_EMAIL=
@@ -92,19 +95,19 @@ Follows the [airbnb javascript style guide](https://github.com/airbnb/javascript
 
 The Dockerfiles bring up a multi container network housing a Node server for the API and an Elastic server housing the ELK stack. To get started:
 
-* Install Docker if it is not already installed. [Docker for Mac](https://www.docker.com/docker-mac) is the fastest and most reliable way to run Docker on a Mac
-* Ensure that you have alloted at least 4.0 GB RAM to Docker as Elasticsearch requires that amount to run. This can be set by going to the 'Preferences' menu of the Docker dropdown and selecting the 'Advanced' tab
-* Follow the confguration instructions above but set the `AWS_HOST` as follows `AWS_HOST=elk:9200`
-* Run `docker-compose up`
+- Install Docker if it is not already installed. [Docker for Mac](https://www.docker.com/docker-mac) is the fastest and most reliable way to run Docker on a Mac
+- Ensure that you have alloted at least 4.0 GB RAM to Docker as Elasticsearch requires that amount to run. This can be set by going to the 'Preferences' menu of the Docker dropdown and selecting the 'Advanced' tab
+- Follow the confguration instructions above but set the `AWS_HOST` as follows `AWS_HOST=elk:9200`
+- Run `docker-compose up`
 
 ### Scripts
 
-* `npm run start`: Starts the web server normally
-* `npm run clear:build`: Removes the build directory.
-* `npm run build`: Generates build folder/files.
-* `npm run dev`: Re-starts the server and re-complies the `build` folder after every change.
-* `npm run test`: Runs `npm run test:unit`.
-* `npm run test:unit`: Executes test cases.
+- `npm run start`: Starts the web server normally
+- `npm run clear:build`: Removes the build directory.
+- `npm run build`: Generates build folder/files.
+- `npm run dev`: Re-starts the server and re-complies the `build` folder after every change.
+- `npm run test`: Runs `npm run test:unit`.
+- `npm run test:unit`: Executes test cases.
 
 ## Search Route
 
@@ -164,29 +167,25 @@ Content-Type: application/json
               "small": {
                 "orientation": "landscape",
                 "width": 300,
-                "url":
-                  "http://cdp.local/wp-content/uploads/2018/02/tyler_photo-300x200.jpg",
+                "url": "http://cdp.local/wp-content/uploads/2018/02/tyler_photo-300x200.jpg",
                 "height": 200
               },
               "large": {
                 "orientation": "landscape",
                 "width": 2160,
-                "url":
-                  "http://cdp.local/wp-content/uploads/2018/02/tyler_photo.jpg",
+                "url": "http://cdp.local/wp-content/uploads/2018/02/tyler_photo.jpg",
                 "height": 1440
               },
               "medium": {
                 "orientation": "landscape",
                 "width": 768,
-                "url":
-                  "http://cdp.local/wp-content/uploads/2018/02/tyler_photo-768x512.jpg",
+                "url": "http://cdp.local/wp-content/uploads/2018/02/tyler_photo-768x512.jpg",
                 "height": 512
               },
               "full": {
                 "orientation": "landscape",
                 "width": 2160,
-                "url":
-                  "http://cdp.local/wp-content/uploads/2018/02/tyler_photo.jpg",
+                "url": "http://cdp.local/wp-content/uploads/2018/02/tyler_photo.jpg",
                 "height": 1440
               }
             }
@@ -286,14 +285,12 @@ GET /v1/video/cdp.local_12
   "unit": [
     {
       "transcript": {
-        "srcUrl":
-          "https://cdp-video-tst.s3.amazonaws.com/cdp.local/video/12/6efd8a36f86774e6ca088923b77a1e29.txt",
+        "srcUrl": "https://cdp-video-tst.s3.amazonaws.com/cdp.local/video/12/6efd8a36f86774e6ca088923b77a1e29.txt",
         "text": "",
         "md5": "6efd8a36f86774e6ca088923b77a1e29"
       },
       "srt": {
-        "srcUrl":
-          "https://cdp-video-tst.s3.amazonaws.com/cdp.local/video/12/be0948bd9ed9e20a55df874d3c7d6f7b.srt",
+        "srcUrl": "https://cdp-video-tst.s3.amazonaws.com/cdp.local/video/12/be0948bd9ed9e20a55df874d3c7d6f7b.srt",
         "md5": "be0948bd9ed9e20a55df874d3c7d6f7b"
       },
       "language": {
@@ -321,8 +318,7 @@ GET /v1/video/cdp.local_12
             "height": "1080"
           },
           "stream": {},
-          "downloadUrl":
-            "https://cdp-video-tst.s3.amazonaws.com/cdp.local/video/12/fc6ce5972a59935b31515578acd37695.mp4",
+          "downloadUrl": "https://cdp-video-tst.s3.amazonaws.com/cdp.local/video/12/fc6ce5972a59935b31515578acd37695.mp4",
           "md5": "fc6ce5972a59935b31515578acd37695"
         }
       ],
@@ -402,15 +398,13 @@ GET /v1/post/cdp.local_17
       "small": {
         "height": 200,
         "width": 300,
-        "url":
-          "http://cdp.local/wp-content/uploads/2018/02/tyler_photo-300x200.jpg",
+        "url": "http://cdp.local/wp-content/uploads/2018/02/tyler_photo-300x200.jpg",
         "orientation": "landscape"
       },
       "medium": {
         "height": 512,
         "width": 768,
-        "url":
-          "http://cdp.local/wp-content/uploads/2018/02/tyler_photo-768x512.jpg",
+        "url": "http://cdp.local/wp-content/uploads/2018/02/tyler_photo-768x512.jpg",
         "orientation": "landscape"
       },
       "large": {
@@ -425,7 +419,7 @@ GET /v1/post/cdp.local_17
         "width": 2160,
         "orientation": "landscape"
       }
-    }      
+    }
   },
   "comment_count": 0,
   "tags": ["another tag", "test", "category 2", "subcat 1", "another tag"],

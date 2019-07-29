@@ -5,12 +5,11 @@ import { Client } from 'elasticsearch';
 // http-aws-es module needs to be updated as it is 3 versions behind
 const httpAwsEs = require( 'http-aws-es' );
 
-
 let connection;
 
 if ( process.env.NODE_ENV === 'production' ) {
   connection = {
-    hosts: process.env.AWS_HOST,
+    hosts: process.env.ELASTICSEARCH_HOST,
     connectionClass: httpAwsEs,
     apiVersion: process.env.ES_API_VERSION,
     amazonES: {
@@ -21,7 +20,7 @@ if ( process.env.NODE_ENV === 'production' ) {
   };
 } else {
   connection = {
-    host: process.env.AWS_HOST,
+    host: process.env.ELASTICSEARCH_HOST,
     apiVersion: process.env.ES_API_VERSION,
     connectionClass: 'http',
     log: ['error']

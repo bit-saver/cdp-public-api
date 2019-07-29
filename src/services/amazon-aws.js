@@ -18,7 +18,7 @@ const s3 = new AWS.S3();
  * @param key
  * @returns {Promise<any>}
  */
-const checkExists = ( bucket = process.env.AWS_S3_BUCKET, key ) => new Promise( ( resolve ) => {
+const checkExists = ( bucket = process.env.AWS_S3_PRODUCTION_BUCKET, key ) => new Promise( ( resolve ) => {
   s3.headObject( { Bucket: bucket, Key: key }, ( err ) => {
     if ( err && err.code === 'NotFound' ) resolve( false );
     else resolve( true );
@@ -41,7 +41,7 @@ const upload = ( {
   title,
   ext,
   filePath = null,
-  bucket = process.env.AWS_S3_BUCKET,
+  bucket = process.env.AWS_S3_PRODUCTION_BUCKET,
   replace = true
 } ) => new Promise( async ( resolve, reject ) => {
   let key = `${title}${ext}`;
@@ -100,7 +100,7 @@ const upload = ( {
  * @param url
  * @param bucket (optional)
  */
-const remove = ( { url, bucket = process.env.AWS_S3_BUCKET } ) => {
+const remove = ( { url, bucket = process.env.AWS_S3_PRODUCTION_BUCKET } ) => {
   const args = URL.parse( url );
   if ( args.hostname && args.hostname.indexOf( 'amazonaws' ) < 0 ) return;
   // Regex on path simply removes the preceeding '/' if any
