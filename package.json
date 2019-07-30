@@ -59,6 +59,7 @@
     "rimraf": "^2.6.3",
     "start-server-webpack-plugin": "^2.2.5",
     "webpack": "^4.35.3",
+    "webpack-cli": "^3.3.6",
     "webpack-merge": "^4.2.1",
     "webpack-node-externals": "^1.7.2"
   }
