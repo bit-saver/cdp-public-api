@@ -7,7 +7,7 @@
 import {} from 'dotenv/config';
 import amqp from 'amqplib';
 import { createDocument, updateDocument, deleteDocument } from './controller';
-import { copyS3AllAssets, deleteAllS3Assets } from '../services/aws/s3';
+import { copyS3AllAssets, deleteAllS3Assets } from '../../services/aws/s3';
 
 // RabbitMQ connection string
 const RABBITMQ_CONNECTION = process.env.RABBITMQ_ENDPOINT;

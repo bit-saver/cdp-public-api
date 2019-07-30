@@ -1,4 +1,4 @@
-import client from '../../services/elasticsearch';
+import client from '../../../services/elasticsearch';
 import validate, { compileValidationErrors } from './validate';
 
 /**

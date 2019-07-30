@@ -7,11 +7,11 @@
   "license": "MIT",
   "scripts": {
     "build:clear": "rimraf build",
-    "build:worker": "babel src/workers/publish.js --out-dir build",
+    "build:worker": "babel src/workers/publish/video/consumer.js --out-dir build",
     "build": "npm run build:clear && npm run build:worker && webpack --mode production --progress --colors",
-    "start": "node build/server.js && node build/publish.js",
+    "start": "node build/server.js && node build/consumer.js",
     "dev": "nodemon -e js -x babel-node --inspect=7000 src/index.js",
-    "dev:worker": "nodemon -e js -x babel-node --inspect=7001 src/workers/video/consumer.js"
+    "dev:worker": "nodemon -e js -x babel-node --inspect=7001 src/workers/publish/video/consumer.js"
   },
   "dependencies": {
     "ajv": "^6.10.0",

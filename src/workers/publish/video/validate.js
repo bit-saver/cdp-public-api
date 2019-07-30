@@ -1,5 +1,5 @@
 import Ajv from 'ajv';
-import videoSchema from '../../api/modules/schema/video';
+import videoSchema from '../../../api/modules/schema/video';
 
 export const compileValidationErrors = errors => `Validation errors: [${errors.map( error => `${error.dataPath || error.keyword || 'root'}] ${error.message}` )}`;
 
