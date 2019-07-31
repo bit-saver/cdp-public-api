@@ -7,8 +7,9 @@
   "license": "MIT",
   "scripts": {
     "build:clear": "rimraf build",
-    "build:worker": "babel src/workers/publish/video/consumer.js --out-dir build",
-    "build": "npm run build:clear && npm run build:worker && webpack --mode production --progress --colors",
+    "build:worker": "webpack --config webpack.worker.js --mode production --progress --colors",
+    "build:main": "webpack --mode production --progress --colors",
+    "build": "npm run build:clear && npm run build:worker && npm run build:main",
     "start": "node build/server.js && node build/consumer.js",
     "dev": "nodemon -e js -x babel-node --inspect=7000 src/index.js",
     "dev:worker": "nodemon -e js -x babel-node --inspect=7001 src/workers/publish/video/consumer.js"
