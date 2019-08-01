@@ -56,6 +56,7 @@ async function handleCreate( data, resultsChannel ) {
     if ( creation.result === 'created' ) {
       if ( typeof projectDirectory === 'string' && projectDirectory ) {
         // what if this fails? add remove doc?
+        console.log( `Copying to production S3: dir ${projectDirectory}, publisher bucket ${PUBLISHER_BUCKET}, production bucket ${PRODUCTION_BUCKET}` );
         copyS3AllAssets( projectDirectory, PUBLISHER_BUCKET, PRODUCTION_BUCKET );
       }
     }

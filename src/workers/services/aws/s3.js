@@ -48,6 +48,7 @@ export const deleteS3Asset = ( key, bucket ) => {
   return s3.deleteObject( params ).promise();
 };
 
+// add throwing error here
 export const copyS3Asset = async ( key, fromBucket, toBucket ) => {
   const copyParams = {
     Bucket: toBucket,
@@ -58,9 +59,10 @@ export const copyS3Asset = async ( key, fromBucket, toBucket ) => {
 };
 
 export const copyS3AllAssets = async ( dir, fromBucket, toBucket ) => {
-  // if ( !dir || !fromBucket || !toBucket ) {
-  //   throw new Error( 'Provide a valid obj' );
-  // }
+  console.log( `In copyS3AllAssets: copying to production S3: dir ${dir}, publisher bucket ${fromBucket}, production bucket ${toBucket}` );
+  if ( !dir || !fromBucket || !toBucket ) {
+    throw new Error( 'ERROR: please provide a vaild dir path, fromBucket or toBucket' );
+  }
 
   const listParams = {
     Bucket: fromBucket,
@@ -75,5 +77,5 @@ export const copyS3AllAssets = async ( dir, fromBucket, toBucket ) => {
   } );
 
   // If more than a page of files, copy next batch
-  if ( listedObjects.IsTruncated ) await copyS3AllAssets( dir );
+  if ( listedObjects.IsTruncated ) await copyS3AllAssets( dir, fromBucket, toBucket );
 };
