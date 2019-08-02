@@ -13,31 +13,62 @@ import { copyS3AllAssets, deleteAllS3Assets } from '../../services/aws/s3';
 const RABBITMQ_CONNECTION = process.env.RABBITMQ_ENDPOINT;
 const PUBLISHER_BUCKET = process.env.AWS_S3_PUBLISHER_BUCKET;
 const PRODUCTION_BUCKET = process.env.AWS_S3_PRODUCTION_BUCKET;
+let consumerConnection = null;
+let publisherConnection = null;
+
+const connect = async () => amqp.connect( RABBITMQ_CONNECTION );
+
+const getConnection = async ( type ) => {
+  if ( type === 'consumer' ) {
+    if ( consumerConnection ) {
+      return consumerConnection;
+    }
+    consumerConnection = connect();
+    return consumerConnection;
+  }
+
+  if ( publisherConnection ) {
+    return publisherConnection;
+  }
+  publisherConnection = connect();
+  return publisherConnection;
+};
+
+const createChannel = async () => {
+  const connection = await getConnection( 'publisher' );
+  const channel = await connection.createConfirmChannel();
+  return channel;
+};
+
+const handleConnectionEvents = ( connection ) => {
+  // handle connection closed
+  connection.on( 'close', () => console.log( 'Connection has been closed' ) );
+  // handle errors
+  connection.on( 'error', err => console.log( `Error: Connection error: ${err.toString()}` ) );
+};
 
 // utility function to publish messages to a channel
-function publishToChannel( channel, {
+const publishToChannel = ( channel, {
   routingKey,
   exchangeName,
   data
-} ) {
-  return new Promise( ( resolve, reject ) => {
-    channel.publish(
-      exchangeName,
-      routingKey,
-      Buffer.from( JSON.stringify( data ), 'utf-8' ), {
-        persistent: true
-      }, ( err ) => {
-        if ( err ) {
-          return reject( err );
-        }
-
-        resolve();
+} ) => new Promise( ( resolve, reject ) => {
+  channel.publish(
+    exchangeName,
+    routingKey,
+    Buffer.from( JSON.stringify( data ), 'utf-8' ), {
+      persistent: true
+    }, ( err ) => {
+      if ( err ) {
+        return reject( err );
       }
-    );
-  } );
-}
 
-async function handleCreate( data, resultsChannel ) {
+      resolve();
+    }
+  );
+} );
+
+async function handleCreate( data ) {
   console.log( '[√] Handle a publish create request' );
 
   let projectId;
@@ -56,13 +87,14 @@ async function handleCreate( data, resultsChannel ) {
     if ( creation.result === 'created' ) {
       if ( typeof projectDirectory === 'string' && projectDirectory ) {
         // what if this fails? add remove doc?
-        console.log( `Copying to production S3: dir ${projectDirectory}, publisher bucket ${PUBLISHER_BUCKET}, production bucket ${PRODUCTION_BUCKET}` );
-        copyS3AllAssets( projectDirectory, PUBLISHER_BUCKET, PRODUCTION_BUCKET );
+        await copyS3AllAssets( projectDirectory, PUBLISHER_BUCKET, PRODUCTION_BUCKET );
       }
     }
   } catch ( err ) {
     throw new Error( err );
   }
+
+  const resultsChannel = await createChannel();
 
   // publish results to channel
   await publishToChannel( resultsChannel, {
@@ -73,10 +105,12 @@ async function handleCreate( data, resultsChannel ) {
     }
   } );
 
+  resultsChannel.close();
+
   console.log( '[x] PUBLISHED publish create result' );
 }
 
-async function handleUpdate( data, resultsChannel ) {
+async function handleUpdate( data ) {
   console.log( '[√] Handle a publish update request' );
 
   let projectId;
@@ -93,12 +127,14 @@ async function handleUpdate( data, resultsChannel ) {
     if ( update.result === 'updated' ) {
       if ( typeof projectDirectory === 'string' && projectDirectory ) {
         // what if this to update? add remove doc?
-        copyS3AllAssets( projectDirectory, PUBLISHER_BUCKET, PRODUCTION_BUCKET );
+        await copyS3AllAssets( projectDirectory, PUBLISHER_BUCKET, PRODUCTION_BUCKET );
       }
     }
   } catch ( err ) {
     throw new Error( err );
   }
+
+  const resultsChannel = await createChannel();
 
   // publish results to channel
   await publishToChannel( resultsChannel, {
@@ -109,10 +145,12 @@ async function handleUpdate( data, resultsChannel ) {
     }
   } );
 
+  resultsChannel.close();
+
   console.log( '[x] PUBLISHED publish update result' );
 }
 
-async function handleDelete( data, resultsChannel ) {
+async function handleDelete( data ) {
   console.log( '[√] Handle a publish delete request' );
 
   let projectId;
@@ -129,12 +167,14 @@ async function handleDelete( data, resultsChannel ) {
     if ( deletion.result === 'deleted' ) {
       if ( typeof projectDirectory === 'string' && projectDirectory ) {
         // what if this fails? add doc back?
-        deleteAllS3Assets( projectDirectory, PRODUCTION_BUCKET );
+        await deleteAllS3Assets( projectDirectory, PRODUCTION_BUCKET );
       }
     }
   } catch ( err ) {
     throw new Error( err );
   }
+
+  const resultsChannel = await createChannel();
 
   // publish results to channel
   await publishToChannel( resultsChannel, {
@@ -144,6 +184,8 @@ async function handleDelete( data, resultsChannel ) {
       projectId
     }
   } );
+
+  resultsChannel.close();
 
   console.log( '[x] PUBLISHED publish delete result' );
 }
@@ -164,46 +206,50 @@ async function processRequest( channel, resultsChannel, msg, processFunc ) {
   }
 }
 
-// consume messages from RabbitMQ
-function consume( { connection, channel, resultsChannel } ) {
-  return new Promise( ( resolve, reject ) => {
-    channel.consume( 'publish.create', async ( msg ) => {
-      processRequest( channel, resultsChannel, msg, handleCreate );
-    } );
+const consumePublishCreate = async ( resultsChannel ) => {
+  const connection = await getConnection( 'consumer' );
+  handleConnectionEvents( connection );
 
-    channel.consume( 'publish.update', async ( msg ) => {
-      processRequest( channel, resultsChannel, msg, handleUpdate );
-    } );
-
-    channel.consume( 'publish.delete', async ( msg ) => {
-      processRequest( channel, resultsChannel, msg, handleDelete );
-    } );
-
-    // handle connection closed
-    connection.on( 'close', err => reject( err ) );
-
-    // handle errors
-    connection.on( 'error', err => reject( err ) );
-  } );
-}
-
-
-async function listenForMessages() {
-  // connect to Rabbit MQ
-  const connection = await amqp.connect( RABBITMQ_CONNECTION );
-
-  // create a channel and prefetch 1 message at a time
   const channel = await connection.createChannel();
   await channel.prefetch( 1 );
 
-  // create a second channel to send back the results
-  const resultsChannel = await connection.createConfirmChannel();
+  channel.consume( 'publish.create', async ( msg ) => {
+    processRequest( channel, resultsChannel, msg, handleCreate );
+  } );
+};
+
+const consumePublishUpdate = async ( resultsChannel ) => {
+  const connection = await getConnection( 'consumer' );
+  handleConnectionEvents( connection );
+
+  const channel = await connection.createChannel();
+  await channel.prefetch( 1 );
+
+  channel.consume( 'publish.update', async ( msg ) => {
+    processRequest( channel, resultsChannel, msg, handleUpdate );
+  } );
+};
+
+const consumePublishDelete = async ( resultsChannel ) => {
+  const connection = await getConnection( 'consumer' );
+  handleConnectionEvents( connection );
+
+  const channel = await connection.createChannel();
+  await channel.prefetch( 1 );
+
+  channel.consume( 'publish.delete', async ( msg ) => {
+    processRequest( channel, resultsChannel, msg, handleDelete );
+  } );
+};
+
+const listenForMessages = async () => {
+  // start consuming messages
+  consumePublishCreate();
+  consumePublishUpdate();
+  consumePublishDelete();
 
   console.log( '[...] LISTENING for publish requests' );
-
-  // start consuming messages
-  await consume( { connection, channel, resultsChannel } );
-}
+};
 
 
 listenForMessages();

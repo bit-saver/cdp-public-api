@@ -107,7 +107,6 @@ export const createDocument = async ( projectId, projectData ) => {
   console.log( 'Index new content', projectId, projectData );
 
   validateSchema( projectData );
-  console.log( 'Validation passed' );
 
   return _createDocument( { ...projectData } );
 };

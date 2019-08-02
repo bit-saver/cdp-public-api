@@ -59,11 +59,6 @@ export const copyS3Asset = async ( key, fromBucket, toBucket ) => {
 };
 
 export const copyS3AllAssets = async ( dir, fromBucket, toBucket ) => {
-  console.log( `In copyS3AllAssets: copying to production S3: dir ${dir}, publisher bucket ${fromBucket}, production bucket ${toBucket}` );
-  if ( !dir || !fromBucket || !toBucket ) {
-    throw new Error( 'ERROR: please provide a vaild dir path, fromBucket or toBucket' );
-  }
-
   const listParams = {
     Bucket: fromBucket,
     Prefix: dir
