@@ -91,7 +91,7 @@ export const updateDocument = async ( projectId, projectData ) => {
 
   const esId = await findDocumentId( projectId );
   if ( !esId ) {
-    throw new Error( 'Unable to find easticsearch document ' );
+    return { error: 'EsDocNotFound' };
   }
 
   return _updateDocument( { ...projectData }, esId );
@@ -121,7 +121,7 @@ export const deleteDocument = async ( projectId ) => {
 
   const esId = await findDocumentId( projectId );
   if ( !esId ) {
-    throw new Error( 'Unable to find easticsearch document ' );
+    return { error: 'EsDocNotFound' };
   }
 
   // only delete if there's actually something to delete

@@ -113,30 +113,28 @@ async function handleCreate( data ) {
 async function handleUpdate( data ) {
   console.log( '[√] Handle a publish update request' );
 
-  let projectId;
-  let projectJson;
-  let projectDirectory;
-  let update;
+  const { projectId, projectJson, projectDirectory } = data;
+  const projectData = JSON.parse( projectJson );
 
-  try {
-    ( { projectId, projectJson, projectDirectory } = data );
-    const projectData = JSON.parse( projectJson );
+  // 1. update ES document
+  const update = await updateDocument( projectId, projectData );
 
-    // update ES document
-    update = await updateDocument( projectId, projectData );
-    if ( update.result === 'updated' ) {
-      if ( typeof projectDirectory === 'string' && projectDirectory ) {
-        // what if this to update? add remove doc?
-        await copyS3AllAssets( projectDirectory, PUBLISHER_BUCKET, PRODUCTION_BUCKET );
-      }
+  // 2. if ES document not found, abort
+  if ( update.error ) {
+    throw new Error( `Update Error: ${update.error} for project with id: ${projectId}` );
+  }
+
+  // 3. copy assets to s3
+  if ( update.result === 'updated' ) {
+    if ( typeof projectDirectory === 'string' && projectDirectory ) {
+      // what if this to update? add remove doc?
+      await copyS3AllAssets( projectDirectory, PUBLISHER_BUCKET, PRODUCTION_BUCKET );
     }
-  } catch ( err ) {
-    throw new Error( err );
   }
 
   const resultsChannel = await createChannel();
 
-  // publish results to channel
+  // 4. publish results to channel
   await publishToChannel( resultsChannel, {
     exchangeName: 'publish',
     routingKey: 'result.update.video',
@@ -153,30 +151,25 @@ async function handleUpdate( data ) {
 async function handleDelete( data ) {
   console.log( '[√] Handle a publish delete request' );
 
-  let projectId;
-  let projectDirectory;
-  let deletion;
+  const { projectId, projectDirectory } = data;
 
-  try {
-    ( { projectId, projectDirectory } = data );
+  // 1. Delete ES document
+  const deletion = await deleteDocument( projectId );
 
-    // delete ES document
-    deletion = await deleteDocument( projectId );
+  // 2. Delete s3 assets if valid projectDirectory exists
+  if ( typeof projectDirectory === 'string' && projectDirectory ) {
+    // what if this fails? add doc back?
+    await deleteAllS3Assets( projectDirectory, PRODUCTION_BUCKET );
+  }
 
-    // if doc is deleted, delete assets if valid projectDirectory exists
-    if ( deletion.result === 'deleted' ) {
-      if ( typeof projectDirectory === 'string' && projectDirectory ) {
-        // what if this fails? add doc back?
-        await deleteAllS3Assets( projectDirectory, PRODUCTION_BUCKET );
-      }
-    }
-  } catch ( err ) {
-    throw new Error( err );
+  // 3. Log any errors
+  if ( deletion.error ) {
+    console.log( `Deletion Error: ${deletion.error} for project with id: ${projectId}` );
   }
 
   const resultsChannel = await createChannel();
 
-  // publish results to channel
+  // 4. publish results to channel
   await publishToChannel( resultsChannel, {
     exchangeName: 'publish',
     routingKey: 'result.delete.video',
