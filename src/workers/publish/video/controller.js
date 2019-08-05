@@ -1,5 +1,6 @@
 import client from '../../../services/elasticsearch';
 import validate, { compileValidationErrors } from './validate';
+import { convertProjectTaxonomies } from '../../utils/taxonomy';
 
 /**
  * Extract the first hit result from an ES search
@@ -94,7 +95,8 @@ export const updateDocument = async ( projectId, projectData ) => {
     return { error: 'EsDocNotFound' };
   }
 
-  return _updateDocument( { ...projectData }, esId );
+  const convertedProject = await convertProjectTaxonomies( projectData );
+  return _updateDocument( convertedProject, esId );
 };
 
 /**
@@ -108,7 +110,8 @@ export const createDocument = async ( projectId, projectData ) => {
 
   validateSchema( projectData );
 
-  return _createDocument( { ...projectData } );
+  const convertedProject = await convertProjectTaxonomies( projectData );
+  return _createDocument( convertedProject );
 };
 
 /**
