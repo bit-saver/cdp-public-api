@@ -157,6 +157,8 @@ async function handleDelete( data ) {
   const deletion = await deleteDocument( projectId );
 
   // 2. Delete s3 assets if valid projectDirectory exists
+  // continue with assets deletion even if error thrown in elastic
+  // if doc doesn't exist in elastic, there should not be corresponding assets
   if ( typeof projectDirectory === 'string' && projectDirectory ) {
     // what if this fails? add doc back?
     await deleteAllS3Assets( projectDirectory, PRODUCTION_BUCKET );
