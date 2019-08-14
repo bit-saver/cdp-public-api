@@ -82,6 +82,7 @@ const videoSchema = {
                     uid: ''
                   },
                   properties: {
+                    site: { type: 'string' },
                     url: { type: 'string' },
                     uid: { type: 'string' },
                     link: { type: 'string' },
