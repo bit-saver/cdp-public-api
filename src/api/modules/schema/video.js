@@ -69,7 +69,9 @@ const videoSchema = {
                     type: 'object',
                     properties: {
                       url: { type: 'string' },
-                      site: { type: 'string' }
+                      site: { type: 'string' },
+                      link: { type: 'string' },
+                      uid: { type: 'string' }
                     }
                   }
                 },
@@ -80,8 +82,10 @@ const videoSchema = {
                     uid: ''
                   },
                   properties: {
+                    site: { type: 'string' },
                     url: { type: 'string' },
                     uid: { type: 'string' },
+                    link: { type: 'string' },
                     thumbnail: { type: 'string' }
                   }
                 },
