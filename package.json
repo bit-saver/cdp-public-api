@@ -10,7 +10,9 @@
     "build:worker": "webpack --config webpack.worker.js --mode production --progress --colors",
     "build:main": "webpack --mode production --progress --colors",
     "build": "npm run build:clear && npm run build:worker && npm run build:main",
-    "start": "node build/server.js && node build/consumer.js",
+    "start": "npm run start:worker && npm run start:main",
+    "start:worker": "node build/consumer.js",
+    "start:main": "node build/server.js",
     "dev": "nodemon -e js -x babel-node --inspect=7000 src/index.js",
     "dev:worker": "nodemon -e js -x babel-node --inspect=7001 src/workers/publish/video/consumer.js"
   },
