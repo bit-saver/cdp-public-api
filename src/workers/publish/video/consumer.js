@@ -153,7 +153,7 @@ async function handleDelete( data ) {
 
   const { projectId, projectDirectory } = data;
 
-  // 1. Delete ES document
+  // 1. Delete ES documents
   const deletion = await deleteDocument( projectId );
 
   // 2. Delete s3 assets if valid projectDirectory exists
@@ -167,6 +167,9 @@ async function handleDelete( data ) {
   // 3. Log any errors
   if ( deletion.error ) {
     console.log( `Deletion Error: ${deletion.error} for project with id: ${projectId}` );
+    if ( deletion.failures && deletion.failures.length > 0 ) {
+      console.log( deletion.failures );
+    }
   }
 
   const resultsChannel = await createChannel();
