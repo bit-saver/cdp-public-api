@@ -2,6 +2,8 @@ import client from '../../../services/elasticsearch';
 import validate, { compileValidationErrors } from './validate';
 import { convertProjectTaxonomies } from '../../utils/taxonomy';
 
+const INDEXING_DOMAIN = process.env.INDEXING_DOMAIN || 'commons.america.gov';
+
 /**
  * Extract the first hit result from an ES search
  * Should return only a single unique result
@@ -23,7 +25,7 @@ const findDocumentId = async ( projectId ) => {
     .search( {
       index: 'videos',
       type: 'video',
-      q: `site:commons.america.gov AND post_id:${projectId}`
+      q: `site:${INDEXING_DOMAIN} AND post_id:${projectId}`
     } );
 
   const id = parseFindResult( doc );
