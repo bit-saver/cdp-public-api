@@ -70,14 +70,14 @@ const _updateDocument = async ( body, esId ) => client.update( {
 } );
 
 /**
- * Delete the video specified by id from ES.
- * @param id
+ * Delete the video specified by projectId from publisher.
+ * @param projectId
  * @returns {Promise<{boolean}>}
  */
-const _deleteDocument = async id => client.delete( {
+const _deleteDocuments = async projectId => client.deleteByQuery( {
   index: 'videos',
   type: 'video',
-  id
+  q: `site:${INDEXING_DOMAIN} AND post_id:${projectId}`
 } );
 
 
@@ -119,16 +119,25 @@ export const createDocument = async ( projectId, projectData ) => {
 /**
  * Delete a video from ES witht he specified projectId (post_id)
  * @param projectId
- * @returns {Promise<{esId, error, projectId, docFound}>}
+ * @returns Promise
  */
 export const deleteDocument = async ( projectId ) => {
   console.log( 'Delete content', projectId );
 
-  const esId = await findDocumentId( projectId );
-  if ( !esId ) {
-    return { error: 'EsDocNotFound' };
-  }
-
-  // only delete if there's actually something to delete
-  return _deleteDocument( esId );
+  // delete all documents with a matching site and post_id (projectId)
+  return _deleteDocuments( projectId )
+    .then( ( result ) => {
+      if ( result.failures && result.failures.length > 0 ) {
+        return {
+          error: 'EsShardFailure',
+          failures: result.failures
+        };
+      }
+      if ( !result.deleted ) {
+        return { error: 'EsDocNotFound' };
+      }
+      return {
+        deleted: result.deleted
+      };
+    } );
 };
