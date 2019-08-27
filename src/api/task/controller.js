@@ -4,10 +4,14 @@ import Mime from 'mime-types';
 export const download = ( req, res ) => {
   let filename;
   let url;
-  if ( req.body.url && req.body.filename ) ( { filename, url } = req.body );
-  else {
+  if ( req.body.url && req.body.filename ) ( { url } = req.body );
+  else if ( !req.params.filename ) {
+    // This is mainly kept for backwards compatability but should be removed eventually
     const opts = JSON.parse( Buffer.from( req.params.opts, 'base64' ).toString() );
     ( { filename, url } = opts );
+  } else {
+    // filename is at the end of the URL so we don't need it as the browser will handle it
+    url = Buffer.from( req.params.opts, 'base64' ).toString();
   }
   const mimeType = Mime.lookup( url ) || 'application/octet-stream';
   const reqHead = Request.head( { url }, ( error, response ) => {
@@ -47,7 +51,8 @@ export const download = ( req, res ) => {
     } else {
       if ( fileSize ) res.setHeader( 'Content-Length', fileSize );
       res.setHeader( 'Content-Type', mimeType );
-      res.setHeader( 'Content-Disposition', `attachment; filename=${filename}` );
+      // if the filename is null then
+      res.setHeader( 'Content-Disposition', `attachment${filename ? `; filename=${filename}` : ''}` );
       Request.get( url ).pipe( res );
     }
   } );
