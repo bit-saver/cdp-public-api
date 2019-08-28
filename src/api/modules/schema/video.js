@@ -54,6 +54,7 @@ const videoSchema = {
             type: 'array',
             items: { type: 'string' }
           },
+          thumbnail: thumbnailSchema,
           source: {
             type: 'array',
             default: [],

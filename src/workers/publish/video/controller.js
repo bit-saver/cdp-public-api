@@ -72,7 +72,7 @@ const _updateDocument = async ( body, esId ) => client.update( {
 /**
  * Delete the video specified by projectId from publisher.
  * @param projectId
- * @returns {Promise<{boolean}>}
+ * @returns Promise
  */
 const _deleteDocuments = async projectId => client.deleteByQuery( {
   index: 'videos',
