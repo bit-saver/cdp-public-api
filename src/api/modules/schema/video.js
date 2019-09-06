@@ -124,6 +124,19 @@ const videoSchema = {
           }
         }
       }
+    },
+    supportFiles: {
+      type: 'array',
+      default: [],
+      items: {
+        type: 'object',
+        properties: {
+          language: languageSchema,
+          supportFileType: { type: 'string' },
+          srcUrl: { type: 'string' },
+          text: { type: 'string' }
+        }
+      }
     }
   },
   required: ['post_id', 'site']
